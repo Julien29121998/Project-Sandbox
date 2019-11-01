@@ -62,8 +62,10 @@ exports.submit = (req, res) => {
     this.compile(req,res)
       .then((result) => {
     let score=result._score;
-    TrainingModel.createTraining(userId,exerciseId,new Date(),score);
-    res.status(204).send({score: score});
+    TrainingModel.createTraining(userId,exerciseId,new Date(),score)
+        .then((resultTr) => {
+            res.status(204).send({score: score, idTraining: resultTr._id});
+        });
     });
 
 };
