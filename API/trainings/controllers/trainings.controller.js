@@ -1,5 +1,4 @@
 const TrainingModel = require('../models/trainings.model');
-const Compiler = require('./middlewares/compiler');
 
 exports.listByUser = (req, res) => {
     let limit = req.query.limit && req.query.limit <= 100 ? parseInt(req.query.limit) : 10;

@@ -1,7 +1,7 @@
 const ExerciseModel = require('../models/exercises.model');
-const TrainingModel = require('../models/trainings.model');
-const UserModel =require('../models/users.model')
-const Compiler = require('./middlewares/compiler');
+const TrainingModel = require('../../trainings/models/trainings.model');
+const UserModel =require('../../users/models/users.model')
+const Compiler = require('../middlewares/compiler');
 
 exports.insert = (req, res) => {
     ExerciseModel.createExercise(req.body)
