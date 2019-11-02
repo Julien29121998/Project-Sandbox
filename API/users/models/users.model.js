@@ -86,4 +86,8 @@ exports.patchUser = (id, userData) => {
 
 };
 
+exports.modifyScore = (id, value) => {
+    return User.findById(id).score += value;
+}
+
 
