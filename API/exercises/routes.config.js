@@ -20,13 +20,11 @@ exports.routesConfig = function (app) {
     app.get('/exercises/:exerciseId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(USER),
-        PermissionMiddleware.onlySameExerciseOrAdminCanDoThisAction,
         ExercisesController.getById
     ]);
     app.patch('/exercises/:exerciseId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
-        PermissionMiddleware.onlySameExerciseOrAdminCanDoThisAction,
         ExercisesController.patchById
     ]);
     app.delete('/exercises/:exerciseId', [

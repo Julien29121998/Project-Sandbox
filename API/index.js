@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
 ExercisesRouter.routesConfig(app);
-TrainingsRouter.routesonfig(app);
+TrainingsRouter.routesConfig(app);
 
 
 app.listen(config.port, function () {
