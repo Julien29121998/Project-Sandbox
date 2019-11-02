@@ -1,5 +1,6 @@
 const ExerciseModel = require('../models/exercises.model');
 const TrainingModel = require('../models/trainings.model');
+const UserModel =require('../models/users.model')
 const Compiler = require('./middlewares/compiler');
 
 exports.insert = (req, res) => {
@@ -64,6 +65,7 @@ exports.submit = (req, res) => {
     let score=result._score;
     TrainingModel.createTraining(userId,exerciseId,new Date(),score)
         .then((resultTr) => {
+            UserModel.modifyScore(userId,score)
             res.status(204).send({score: score, idTraining: resultTr._id});
         });
     });
