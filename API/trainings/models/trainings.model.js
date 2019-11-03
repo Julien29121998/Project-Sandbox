@@ -8,6 +8,8 @@ const trainingSchema = new Schema({
     score: Number
 });
 
+const Training = mongoose.model('Trainings', trainingSchema);
+
 trainingSchema.virtual('id').get(function () {
     return this._id.toHexString();
 });
@@ -21,8 +23,6 @@ trainingSchema.findById = function (cb) {
     return this.model('Trainings').find({id: this.id}, cb);
 };
 
-
-const Training = mongoose.model('Trainings', trainingSchema);
 
 exports.findByUser = (uId,perPage, page) => {
     return new Promise((resolve, reject) => {

@@ -49,25 +49,30 @@ exports.removeById = (req, res) => {
 exports.compile = (req, res) => {
     let chosenLanguage = req.body.lang;
     let code = req.body.code;
-    let testData= getById(req.params.exerciseId).testData;
-    let trueCode= getById(req.params.exerciseId).exampleCode;
-    Compiler.compile(code,chosenLanguage,testData,trueCode)
-        .then((result) => {
-            res.status(204).send(result)
+    ExerciseModel.findById(req.params.exerciseId)
+        .then((exerciseFound)=>{
+            let testData=exerciseFound.testData;
+            let trueCode=exerciseFound.exampleCode;
+            result=Compiler.compile(code,chosenLanguage,testData,trueCode);
+            res.status(200).send(result);
         });
 
 };
 exports.submit = (req, res) => {
     let userId = req.jwt.userId;
     let exerciseId = req.params.exerciseId;
-    this.compile(req,res)
-      .then((result) => {
-    let score=result._score;
-    TrainingModel.createTraining(userId,exerciseId,new Date(),score)
-        .then((resultTr) => {
-            UserModel.modifyScore(userId,score)
-            res.status(204).send({score: score, idTraining: resultTr._id});
-        });
-    });
-
+    let chosenLanguage = req.body.lang;
+    let code = req.body.code;
+    ExerciseModel.findById(req.params.exerciseId)
+        .then((exerciseFound)=>{
+            let testData=exerciseFound.testData;
+            let trueCode=exerciseFound.exampleCode;
+            let score=Compiler.compile(code,chosenLanguage,testData,trueCode).score;
+            TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: score})
+                .then((resultTr) => {
+                    UserModel.modifyScore(userId,score)
+                    .then(()=>{
+                    res.status(200).send({score: score, idTraining: resultTr._id});});
+                });
+        });   
 };

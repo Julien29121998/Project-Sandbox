@@ -7,12 +7,12 @@ const ADMIN = config.permissionLevels.ADMIN;
 const USER = config.permissionLevels.USER;
 
 exports.routesConfig = function (app) {
-    app.get('/stats/:userId', [
+    app.get('/stats/users/:userId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
         TrainingsController.listByUser
     ]);
-    app.get('/stats/:exerciseId', [
+    app.get('/stats/exercises/:exerciseId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
         TrainingsController.listByExercise

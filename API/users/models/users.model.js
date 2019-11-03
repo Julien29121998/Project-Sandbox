@@ -87,7 +87,14 @@ exports.patchUser = (id, userData) => {
 };
 
 exports.modifyScore = (id, value) => {
-    return User.findById(id).score += value;
+    return new Promise((resolve, reject) => {
+    User.findById(id,function(err,user){
+    if (err) reject(err);
+    user.score += value;
+    user.save(function (err, updatedUser) {
+        if (err) return reject(err);
+        resolve(updatedUser);});});
+});
 }
 
 

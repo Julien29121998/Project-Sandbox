@@ -10,7 +10,7 @@ exports.routesConfig = function (app) {
     app.post('/exercises', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
-        ExercisesController.list
+        ExercisesController.insert
     ]);
     app.get('/exercises', [
         ValidationMiddleware.validJWTNeeded,

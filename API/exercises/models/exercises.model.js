@@ -8,6 +8,8 @@ const exerciseSchema = new Schema({
     testData: [String]
 });
 
+const Exercise = mongoose.model('Exercises', exerciseSchema);
+
 exerciseSchema.virtual('id').get(function () {
     return this._id.toHexString();
 });
@@ -20,9 +22,6 @@ exerciseSchema.set('toJSON', {
 exerciseSchema.findById = function (cb) {
     return this.model('Exercises').find({id: this.id}, cb);
 };
-
-const Exercise = mongoose.model('Exercises', exerciseSchema);
-
 
 exports.findById = (id) => {
     return Exercise.findById(id)
