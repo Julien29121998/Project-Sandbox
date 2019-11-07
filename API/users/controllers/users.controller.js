@@ -6,10 +6,22 @@ exports.insert = (req, res) => {
     let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
     req.body.password = salt + "$" + hash;
     //req.body.permissionLevel = 3;
-    UserModel.createUser(req.body)
-        .then((result) => {
-            res.status(201).send({id: result._id});
+    if (req.body.login.length == 0) {
+        res.json("Please enter a login");
+    }
+    UserModel.findByLogin(req.body.login).then(result=>{if (result != ""){
+        //console.log("The result is" + result);
+        //console.log(UserModel.findByLogin(req.body.login));
+        res.json("This login already exists. Choose a new one!");
+    }else{
+        //console.log("The result is" + result);
+        //console.log(UserModel.findByLogin(req.body.login));
+        UserModel.createUser(req.body)
+        .then((result2) => {
+            res.status(201).send({id: result2._id});
         });
+    }
+    });    
 };
 
 

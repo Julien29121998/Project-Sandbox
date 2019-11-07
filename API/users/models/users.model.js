@@ -30,8 +30,17 @@ exports.createUser = (userData) => {
 };
 
 exports.findByLogin = (login) => {
-    return User.find({login: login});
+    return new Promise((resolve, reject) => {
+        User.find({login: login}).exec(function(err, users) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(users);
+            }
+        });
+    });
 };
+
 exports.findById = (id) => {
     return User.findById(id)
         .then((result) => {
