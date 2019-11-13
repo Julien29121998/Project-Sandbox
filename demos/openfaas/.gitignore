@@ -1,0 +1,5 @@
+build
+faas
+node_modules
+template
+utils/creds.js
