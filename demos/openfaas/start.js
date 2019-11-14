@@ -13,7 +13,7 @@ let password;
     password = data.password;
   }
 
-  await runCmd('docker swarm init');
+  await runCmd('docker swarm init --advertise-addr 2a01:cb08:8640:9c00:39ac:f257:538f:e127');
 
   if (!fs.existsSync(path.resolve(__dirname, './faas/deploy_stack.sh'))) {
     await runCmd('git clone https://github.com/openfaas/faas');
@@ -27,7 +27,7 @@ let password;
           username = words[i + 1];
         }
         if (words[i] === 'password:') {
-          password = words[i + 1].replace('\\n', '');
+          password = words[i + 1].replace('\n', '');
         }
       }
     }
