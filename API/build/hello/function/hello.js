@@ -1,0 +1,1 @@
+module.exports = (context, callback) => {callback(undefined, 'NodeJS Hello World');}

@@ -48,12 +48,12 @@ exports.removeById = (req, res) => {
 
 exports.compile = (req, res) => {
     let chosenLanguage = req.body.lang;
-    let code = req.body.code;
+    //let code = req.body.code;
     ExerciseModel.findById(req.params.exerciseId)
         .then((exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
-            result=Compiler.compile(code,chosenLanguage,testData,trueCode);
+            result=Compiler.compile(req,chosenLanguage,testData,trueCode);
             res.status(200).send(result);
         });
 
