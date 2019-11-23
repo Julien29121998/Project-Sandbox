@@ -50,6 +50,7 @@ async function deploy (funcPath) {
     }
   });
   const res = await invoke(url);
+  console.log(res+"ma bite")
   return { funcPath: funcPath, res: res, duration: new Date() - start };
 }
 

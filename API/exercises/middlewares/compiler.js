@@ -1,6 +1,5 @@
 const fs = require('fs');
-const path = require('path');
-const {deploy,invoke} = require('../../utils/fn');
+const deploy = require('../../utils/fn');
 
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
@@ -11,9 +10,14 @@ exports.compile =  (funcName,code,lang,testData,trueCode) => {
   if(lang=="node") suffix="js";
 
   createFunction(lang,funcName,code,suffix);
-  createFunction("Python",truefuncName,truecode,"py");
-  deployFunction(lang,funcName);
-  deployFunction("Python",truefuncName)
+  createFunction("Python",truefuncName,trueCode,"py");
+  var function_res=deployFunction(lang,funcName);
+  var correction_res=deployFunction("Python",truefuncName)
+  var score = 0;
+  if(function_res.result=correction_res.result){
+    score =3;
+  }
+  return({score: score,time: function_res.time});
    
 };
 
@@ -54,7 +58,8 @@ functions:
 function deployFunction(lang,funcName)
 {
   const yml = `./functions/${lang}/${funcName}/${funcName}.yml`;
-  deploy(yml);
+  res=deploy(yml);
+  return({result : res.res, time : res.duration})
 
 }
 

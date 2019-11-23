@@ -27,17 +27,8 @@ async function runCmd (command, options = {}, func) {
   });
 }
 
-async function wait (time) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, time);
-  });
-}
-
 async function deploy (funcPath) {
   let url;
-  const start = new Date();
   await runCmd(`faas-cli build -f ${funcPath}`);
   await runCmd(`faas-cli deploy -f ${funcPath}`, {}, (line) => {
     if (line.includes('URL:')) {
@@ -49,6 +40,7 @@ async function deploy (funcPath) {
       }
     }
   });
+  const start = new Date();
   const res = await invoke(url);
   return { funcPath: funcPath, res: res, duration: new Date() - start };
 }
@@ -84,29 +76,7 @@ async function invoke (url) {
     });
   });
 }
-
-function generateCreds (username, password) {
-  return `
-  (function (root, factory) {
-    if (typeof exports === 'object') {
-      module.exports = factory();
-    } else {
-      root.creds = factory();
-    }
-  }(this, function() {
-    return {
-      "username": "${username}",
-      "password": "${password}"
-    };
-  }));
-  `; 
-}
-
 module.exports = {
-  runCmd: runCmd,
-  wait: wait,
   deploy: deploy,
-  deployAll: deployAll,
-  invoke: invoke,
-  generateCreds: generateCreds
+  deployAll: deployAll
 }
