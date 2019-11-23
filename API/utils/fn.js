@@ -50,6 +50,7 @@ async function deploy (funcPath) {
     }
   });
   const res = await invoke(url);
+  //return res;
   return { funcPath: funcPath, res: res, duration: new Date() - start };
 }
 
@@ -84,6 +85,21 @@ async function invoke (url) {
     });
   });
 }
+async function call(funcPath)
+{
+  let res;
+  await runCmd(`faas-cli invoke -f ${funcPath}`);
+  await runCmd(`faas-cli invoke -f ${funcPath}`, {}, (line) => {
+    
+    res+=line;
+      // const words = line.split(' ');
+      // for (let i = 0; i < words.length; i++) {
+      //     res = words[i + 1].replace(/\\n/g, '')
+    
+  });
+  //const res = await invoke(url);
+  return { funcPath: funcPath, res: res, duration: new Date() - start };
+}
 
 function generateCreds (username, password) {
   return `
@@ -109,4 +125,5 @@ module.exports = {
   deployAll: deployAll,
   invoke: invoke,
   generateCreds: generateCreds
+  
 }
