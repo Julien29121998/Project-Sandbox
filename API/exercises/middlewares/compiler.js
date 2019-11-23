@@ -4,10 +4,7 @@ const {deploy,invoke} = require('../../utils/fn');
 
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
-exports.compile =  (req, res) => {
-  const lang=req.body.lang;
-  const funcName=req.body.funcName;
-  const code=req.body.code;
+exports.compile =  (funcName,code,lang,testData,trueCode) => {
   var suffix="";
   //here we need to decide the suffix of src file depending on the language
   if(lang=="node") suffix="js";
