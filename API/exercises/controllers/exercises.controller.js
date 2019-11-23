@@ -67,7 +67,7 @@ exports.submit = (req, res) => {
         .then((exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
-            let score=Compiler.compile(code,chosenLanguage,testData,trueCode).score;
+            let score=Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode).score;
             TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: score})
                 .then((resultTr) => {
                     UserModel.modifyScore(userId,score)
