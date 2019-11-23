@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const clipboardy = require('clipboardy');
 const { generateCreds, runCmd, wait } = require('./utils/fn');
 let username;
 let password;
@@ -13,7 +12,7 @@ let password;
     password = data.password;
   }
 
-  await runCmd('docker swarm init --advertise-addr 2a01:cb08:8640:9c00:39ac:f257:538f:e127');
+  await runCmd('docker swarm init --advertise-addr 2a01:cb08:8640:9c00:ecbd:2f7d:3e0c:4f88');
 
   if (!fs.existsSync(path.resolve(__dirname, './faas/deploy_stack.sh'))) {
     await runCmd('git clone https://github.com/openfaas/faas');
@@ -37,7 +36,6 @@ let password;
     fs.writeFileSync(path.resolve(__dirname, './utils/creds.js'), generateCreds(username, password));
   }
 
-  clipboardy.writeSync(password);
 
   await wait(5000);
 
@@ -45,6 +43,4 @@ let password;
 
   console.info(`Dashboard available here: http://localhost:8080/ui/`);
   console.info(`Username: ${username}\nPassword: ${password}`);
-  console.info('\nPassword has been copied to clipboard.');
-  clipboardy.writeSync(password);
 })();

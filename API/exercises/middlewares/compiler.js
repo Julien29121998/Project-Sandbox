@@ -1,7 +1,11 @@
 const fs = require('fs');
+<<<<<<< HEAD
 const path = require('path');
 const {deploy,invoke,call} = require('../../utils/fn');
 const createDir=require('./mkdir')
+=======
+const deploy = require('../../utils/fn');
+>>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
 
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
@@ -16,11 +20,23 @@ exports.compile =  (req, res) => {
   if(lang=="node") suffix="js";
   if(lang=="csharp") suffix="csproj";
 
+<<<<<<< HEAD
   createFunction(exerciseId,lang,funcName,code,suffix);
   //createFunction(exerciseId,"Python",truefuncName,truecode,"py");
   var result=deployFunction(exerciseId,lang,funcName);
   //deployFunction(exerciseId,"Python",truefuncName)
   
+=======
+  createFunction(lang,funcName,code,suffix);
+  createFunction("Python",truefuncName,trueCode,"py");
+  var function_res=deployFunction(lang,funcName);
+  var correction_res=deployFunction("Python",truefuncName)
+  var score = 0;
+  if(function_res.result=correction_res.result){
+    score =3;
+  }
+  return({score: score,time: function_res.time});
+>>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
    
 };
 
