@@ -6,11 +6,14 @@ const {deploy,invoke} = require('../../utils/fn');
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
 exports.compile =  (funcName,code,lang,testData,trueCode) => {
   var suffix="";
+  var truefuncName=funcName+'CORRECTION'
   //here we need to decide the suffix of src file depending on the language
   if(lang=="node") suffix="js";
 
   createFunction(lang,funcName,code,suffix);
+  createFunction("Python",truefuncName,truecode,"py");
   deployFunction(lang,funcName);
+  deployFunction("Python",truefuncName)
    
 };
 
@@ -54,5 +57,7 @@ function deployFunction(lang,funcName)
   deploy(yml);
 
 }
+
+//then invoke both and compare IN PROGRESS
 
 
