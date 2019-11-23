@@ -8,17 +8,18 @@ exports.compile =  (req, res) => {
   const lang=req.body.lang;
   const funcName=req.body.funcName;
   const code=req.body.code;
+  const exerciseId=req.body.exerciseId;
   var suffix="";
   //here we need to decide the suffix of src file depending on the language
   if(lang=="node") suffix="js";
 
-  createFunction(lang,funcName,code,suffix);
-  deployFunction(lang,funcName);
+  createFunction(exerciseId,lang,funcName,code,suffix);
+  deployFunction(exerciseId,lang,funcName);
    
 };
 
 //create a new node function
-function createFunction(lang,funcName,code,suffix)
+function createFunction(exerciseId,lang,funcName,code,suffix)
 {
 
   //create default yml configuration using the info above
@@ -33,27 +34,31 @@ functions:
     image: ${lang}_${funcName}:latest
 `
   //create function directories and sre file
-  fs.stat(`./functions/${lang}`,function(err, stat){
+  fs.stat(`./functions/${exerciseId}/`,function(err, stat){
     if(!stat) 
-      fs.mkdirSync(`./functions/${lang}/${funcName}`);
+      fs.mkdirSync(`./functions/${exerciseId}/${lang}/${funcName}`);
   })
-  fs.stat(`./functions/${lang}/${funcName}`,function(err, stat){
+  fs.stat(`./functions/${exerciseId}/${lang}`,function(err, stat){
     if(!stat) 
-      fs.mkdirSync(`./functions/${lang}/${funcName}`);
+      fs.mkdirSync(`./functions/${exerciseId}/${lang}/${funcName}`);
   })
-  fs.stat(`./functions/${lang}/${funcName}/src`,function(err, stat){
+  fs.stat(`./functions/${exerciseId}/${lang}/${funcName}`,function(err, stat){
     if(!stat) 
-      fs.mkdirSync(`./functions/${lang}/${funcName}/src`);
+      fs.mkdirSync(`./functions/${exerciseId}/${lang}/${funcName}`);
   })
-  fs.writeFileSync(`./functions/${lang}/${funcName}/src/${funcName}.${suffix}`, code, 'utf8' );
-  fs.writeFileSync(`./functions/${lang}/${funcName}/${funcName}.yml`,ymlConf,'utf8');  
+  fs.stat(`./functions/${exerciseId}/${lang}/${funcName}/src`,function(err, stat){
+    if(!stat) 
+      fs.mkdirSync(`./functions/${exerciseId}/${lang}/${funcName}/src`);
+  })
+  fs.writeFileSync(`./functions/${exerciseId}/${lang}/${funcName}/src/${funcName}.${suffix}`, code, 'utf8' );
+  fs.writeFileSync(`./functions/${exerciseId}/${lang}/${funcName}/${funcName}.yml`,ymlConf,'utf8');  
 }
 
 
 //deploy the function created on the openfaas
-function deployFunction(lang,funcName)
+function deployFunction(exerciseId,lang,funcName)
 {
-  const yml = `./functions/${lang}/${funcName}/${funcName}.yml`;
+  const yml = `./functions/${exerciseId}/${lang}/${funcName}/${funcName}.yml`;
   deploy(yml);
 
 }
