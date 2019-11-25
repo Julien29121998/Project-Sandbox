@@ -42,7 +42,6 @@ async function deploy (funcPath) {
   });
   const start = new Date();
   const res = await invoke(url);
-  //return res;
   return { funcPath: funcPath, res: res, duration: new Date() - start };
 }
 
@@ -77,50 +76,8 @@ async function invoke (url) {
     });
   });
 }
-<<<<<<< HEAD
-async function call(funcPath)
-{
-  let res;
-  await runCmd(`faas-cli invoke -f ${funcPath}`);
-  await runCmd(`faas-cli invoke -f ${funcPath}`, {}, (line) => {
-    
-    res+=line;
-      // const words = line.split(' ');
-      // for (let i = 0; i < words.length; i++) {
-      //     res = words[i + 1].replace(/\\n/g, '')
-    
-  });
-  //const res = await invoke(url);
-  return { funcPath: funcPath, res: res, duration: new Date() - start };
-}
 
-function generateCreds (username, password) {
-  return `
-  (function (root, factory) {
-    if (typeof exports === 'object') {
-      module.exports = factory();
-    } else {
-      root.creds = factory();
-    }
-  }(this, function() {
-    return {
-      "username": "${username}",
-      "password": "${password}"
-    };
-  }));
-  `; 
-}
-
-=======
->>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
 module.exports = {
   deploy: deploy,
-<<<<<<< HEAD
-  deployAll: deployAll,
-  invoke: invoke,
-  generateCreds: generateCreds
-  
-=======
   deployAll: deployAll
->>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
 }
