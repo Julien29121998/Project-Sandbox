@@ -1,0 +1,9 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  hello_python:
+    lang: python
+    handler: ./functions/5dd454c750be1c6bf705663c/python/hello_python/src/
+    image: python_hello_python:latest

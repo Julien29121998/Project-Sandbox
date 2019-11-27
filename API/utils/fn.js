@@ -77,7 +77,6 @@ async function invoke (url) {
     });
   });
 }
-<<<<<<< HEAD
 async function call(funcPath)
 {
   let res;
@@ -111,16 +110,10 @@ function generateCreds (username, password) {
   `; 
 }
 
-=======
->>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
 module.exports = {
   deploy: deploy,
-<<<<<<< HEAD
   deployAll: deployAll,
   invoke: invoke,
   generateCreds: generateCreds
   
-=======
-  deployAll: deployAll
->>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
 }

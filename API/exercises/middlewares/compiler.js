@@ -1,77 +1,110 @@
 const fs = require('fs');
-<<<<<<< HEAD
 const path = require('path');
 const {deploy,invoke,call} = require('../../utils/fn');
 const createDir=require('./mkdir')
-=======
-const deploy = require('../../utils/fn');
->>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
 
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
-exports.compile =  (req, res) => {
-  const lang=req.body.lang;
+exports.compile =  async (req,chosenLanguage,testData,trueCode) => {
+  const lang=chosenLanguage;
   const funcName=req.body.funcName;
   const code=req.body.code;
   const exerciseId=req.params.exerciseId;
   var suffix="";
-  var truefuncName=funcName+'CORRECTION'
+  //var truefuncName=funcName+'CORRECTION'
   //here we need to decide the suffix of src file depending on the language
   if(lang=="node") suffix="js";
   if(lang=="csharp") suffix="csproj";
-
-<<<<<<< HEAD
-  createFunction(exerciseId,lang,funcName,code,suffix);
-  //createFunction(exerciseId,"Python",truefuncName,truecode,"py");
-  var result=deployFunction(exerciseId,lang,funcName);
-  //deployFunction(exerciseId,"Python",truefuncName)
+  if(lang=="python")  suffix="py"
   
-=======
-  createFunction(lang,funcName,code,suffix);
-  createFunction("Python",truefuncName,trueCode,"py");
-  var function_res=deployFunction(lang,funcName);
-  var correction_res=deployFunction("Python",truefuncName)
-  var score = 0;
-  if(function_res.result=correction_res.result){
-    score =3;
-  }
-  return({score: score,time: function_res.time});
->>>>>>> 61d5db9f45c8c9fd93bc6e1e742d7d6b4005b524
-   
+  
+  await createFunction(exerciseId,lang,funcName,code,suffix);
+  var result=await deployFunction(exerciseId,lang,funcName);
+  console.log(result);
+  return result;
 };
 
 //create a new node function
 async function createFunction(exerciseId,lang,funcName,code,suffix)
 {
+  if(lang=="node")
+    createNodeFunction(exerciseId,lang,funcName,code,suffix);
+  if(lang=="python")
+    createPythonFunction(exerciseId,lang,funcName,code,suffix);
+  
+  
+}
 
-  //create default yml configuration using the info above
-  const ymlConf=`version: 1.0
-provider:
-  name: openfaas
-  gateway: http://127.0.0.1:8080
-functions:
-  ${funcName}:
-    lang: ${lang}
-    handler: ./functions/${lang}/${funcName}/src/
-    image: ${lang}_${funcName}:latest
-`
-//create function directory of this exercise
-await createDir.dirExists(`./functions/${exerciseId}/${lang}/${funcName}/src/${funcName}.${suffix}`);
-fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/${funcName}.${suffix}`, code, err => {
+async function createNodeFunction(exerciseId,lang,funcName,code,suffix)
+{
+  var ymlConf=getYmlTemplet(exerciseId,lang,funcName);
+  var packageConf=getPackageConf(funcName);
+  var isCodeFunction=await isFunction(code);
+  var codeContext;
+  if(!isCodeFunction)
+    codeContext=await getNodeCodeTemplet(code);
+  else
+    codeContext=await getNodeFunctionCodeTemplet(code,funcName);
+  
+  await createDirs(exerciseId,lang,funcName);
+  //replace \n \r\n \r
+  code=decodeCode(code);
+  //create function source file
+  fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/handler.${suffix}`, codeContext, err => {
+      if(err) return console.log(err);
+      console.log('succeed in writing source file');
+  })
+  //create the yml config file
+  fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/${funcName}.yml`, ymlConf, err => {
+      if(err) return console.log(err);
+      console.log('succeed in writing yml config file');
+  })
+  //create the package.json file
+  fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/package.json`, packageConf, err => {
     if(err) return console.log(err);
-    console.log('succeed in writing source file');
-})
-//create the configuration file
-await createDir.dirExists(`./functions/${exerciseId}/${lang}/${funcName}/${funcName}.yml`);
-fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/${funcName}.yml`, ymlConf, err => {
-    if(err) return console.log(err);
-    console.log('succeed in writing yml config file');
-})
+    console.log('succeed in writing package json config file');
+  })
+}
+async function createPythonFunction(exerciseId,lang,funcName,code,suffix)
+{
+  var ymlConf=getYmlTemplet(exerciseId,lang,funcName);
+  var codeContext;
+  await createDirs(exerciseId,lang,funcName);
+  //replace \n \r\n \r
+  code=decodeCode(code);
+codeContext=await getPythonCodeTemplet(code);
+  //create function source file
+  fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/handler.${suffix}`, codeContext, err => {
+      if(err) return console.log(err);
+      console.log('succeed in writing source file');
+  })
+  //create the yml config file
+  fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/${funcName}.yml`, ymlConf, err => {
+      if(err) return console.log(err);
+      console.log('succeed in writing yml config file');
+  })
+  
+}
+
+  //fs.writeFileSync(dst, fs.readFileSync(src));
 
 
+async function createDirs(exerciseId,lang,funcName)
+{
+  await createDir.dirExists(`./functions/${exerciseId}/${lang}/${funcName}/`);
+  await createDir.dirExists(`./functions/${exerciseId}/${lang}/${funcName}/src/`); 
+}
 
 
-
+function decodeCode(code)
+{
+  if(process.platform=="darwin")
+    code = code.replace("\r\n","\r").replace("\n","\r");
+  if(process.platform=="win32")
+    code = code.replace("\r\n","\n");
+  
+  return code;
+      
 }
 
 //deploy the function created on the openfaas
@@ -81,7 +114,72 @@ async function deployFunction(exerciseId,lang,funcName)
   //const yml="./functions/csharp/helloworld/helloworld.yml";
   var res=await deploy(yml);
   console.log(res.res);
+  return res;
 
+}
+
+function getYmlTemplet(exerciseId,lang,funcName)
+{
+  const ymlConf=`version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  ${funcName}:
+    lang: ${lang}
+    handler: ./functions/${exerciseId}/${lang}/${funcName}/src/
+    image: ${lang}_${funcName}:latest
+`
+ 
+  return ymlConf;
+}
+
+async function getNodeCodeTemplet(code)
+{
+  const codeTemplet=`
+\"use strict\"
+module.exports = (context, callback) => {
+   ${code};
+}`
+  return codeTemplet;
+}
+
+async function getPythonCodeTemplet(code)
+{
+  const codeTemplet=`def handle(req):
+\t${code}`
+  return codeTemplet;
+}
+
+
+
+async function getNodeFunctionCodeTemplet(code,funcName)
+{
+  var codeTemplet=`
+\"use strict\"
+${code}
+module.exports = (context, callback) => {
+   ${funcName}();
+}`
+  return codeTemplet;
+}
+
+function getPackageConf(funcName)
+{
+  const packageConf=`{
+    \"name\": \"${funcName}\",
+    \"version\": \"0.0.1\",
+    \"main\": \"handler.js\"
+  }
+  `
+  return packageConf;
+}
+
+async function isFunction(code)
+{
+  if(code.split(" ")[0]=="function")
+    return true;
+  return false;
 }
 
 
