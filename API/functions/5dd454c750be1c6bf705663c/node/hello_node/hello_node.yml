@@ -1,9 +1,0 @@
-version: 1.0
-provider:
-  name: openfaas
-  gateway: http://127.0.0.1:8080
-functions:
-  hello_node:
-    lang: node
-    handler: ./functions/5dd454c750be1c6bf705663c/node/hello_node/src/
-    image: node_hello_node:latest

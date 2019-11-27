@@ -5,23 +5,35 @@ const createDir=require('./mkdir')
 
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
-exports.compile =  async (req,chosenLanguage,testData,trueCode) => {
+exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name) => {
   const lang=chosenLanguage;
-  const funcName=req.body.funcName;
-  const code=req.body.code;
-  const exerciseId=req.params.exerciseId;
+  name="exerc";
+  const funcName=name+"_solution";
+  const trueFuncName=funcName+"c";
+  //const code=req.body.code;
+  //const exerciseId=req.params.exerciseId;
   var suffix="";
   //var truefuncName=funcName+'CORRECTION'
   //here we need to decide the suffix of src file depending on the language
   if(lang=="node") suffix="js";
   if(lang=="csharp") suffix="csproj";
   if(lang=="python")  suffix="py"
-  
-  
+  //code=box(testData,code,lang,funcName);
+  //trueCode=box(testData,trueCode,lang,funcName);
   await createFunction(exerciseId,lang,funcName,code,suffix);
-  var result=await deployFunction(exerciseId,lang,funcName);
-  console.log(result);
-  return result;
+  await createFunction(exerciseId+"C",lang,trueFuncName,trueCode,suffix);
+  
+  var function_res=await deployFunction(exerciseId,lang,funcName);
+  var correction_res=await deployFunction(exerciseId+"C",lang,trueFuncName)
+  var score = 0;
+  if(function_res.res==correction_res.res){
+    score =3;
+  }
+  console.log("result:"+function_res.res);
+  console.log("true answer:"+correction_res.res);
+  console.log("point: "+score);
+  return({score: score,time: function_res.duration}); 
+  //return function_res;
 };
 
 //create a new node function
@@ -183,11 +195,21 @@ async function isFunction(code)
 }
 
 
-
-
-
-
-
+function box(testData,code,lang,funcName){
+  if(lang=="node") {
+    head=`function box${funcName}(){
+    test=${testData}[0];`;
+    end=`return(${funcName}(test))}`;
+  }
+  if(lang=="python") {
+    head=`def box${funcName}():
+      test=${testData}[0]
+      `;
+    end=`
+     return(${funcName}(test))`;
+  }
+return(head+code+end);
+}
 
 
 

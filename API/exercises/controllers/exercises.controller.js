@@ -48,12 +48,13 @@ exports.removeById = (req, res) => {
 
 exports.compile = (req, res) => {
     let chosenLanguage = req.body.lang;
-    //let code = req.body.code;
+    let code = req.body.code;
     ExerciseModel.findById(req.params.exerciseId)
         .then((exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
-            result=Compiler.compile(req,chosenLanguage,testData,trueCode);
+            let name=exerciseFound.name;
+            result=Compiler.compile(req.params.exerciseId,code,chosenLanguage,testData,trueCode,name);
             res.status(200).send(result);
         });
 
@@ -67,7 +68,8 @@ exports.submit = (req, res) => {
         .then((exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
-            let score=Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode).score;
+            let name=exerciseFound.name;
+            let score=Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,name).score;
             TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: score})
                 .then((resultTr) => {
                     UserModel.modifyScore(userId,score)

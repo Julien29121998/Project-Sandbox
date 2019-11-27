@@ -42,7 +42,6 @@ async function deploy (funcPath) {
   });
   const start = new Date();
   const res = await invoke(url);
-  //return res;
   return { funcPath: funcPath, res: res, duration: new Date() - start };
 }
 
