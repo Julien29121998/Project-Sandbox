@@ -206,23 +206,24 @@ async function box(testData,code,lang,funcName){
   if(testData.length>0){
     if(lang=="python"){
       head=`def boxed${funcName}():
-        input=[]
-        output=[]
-        `;
+      \tinput=[]
+      \toutput=[]
+      \t`;
       for(var i=0;i<testData.length;i++){
         head=head+`input.append(${testData[i]})
-          `;
+        \t`;
       }
-      end=`  `;
+      end=`
+      \t`;
       if(isfunc.answer){
         for(var i=0;i<testData.length;i++){
           end=end+`output.append(${isfunc.name}(input[${i}]))
-            `;
+          \t`;
         }
-        end=end+` return(output)`;
+        end=end+`return(output)`;
       }
       else{
-        end=end+` return(output)`;
+        end=end+`return(output)`;
       }
       code=await indent(code);
       result=await indent(head+code+end);
@@ -251,14 +252,14 @@ async function box(testData,code,lang,funcName){
   else{
     if(lang=="python"){
       head=`def boxed${funcName}():
-      `;
+      \t`;
         if(isfunc.answer){
           end=`
-          return(${isfunc.name}())`;
+          \treturn(${isfunc.name}())`;
         }
         else{
           end=`
-          return(output)`;
+          \treturn(output)`;
         }
         code=await indent(code);
         result=await indent(head+code+end);
@@ -276,7 +277,6 @@ async function box(testData,code,lang,funcName){
     }
 
   }
-  console.log("#####################")
   return(result);
 } 
 
