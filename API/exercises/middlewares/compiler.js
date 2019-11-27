@@ -18,8 +18,8 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
   if(lang=="node") suffix="js";
   if(lang=="csharp") suffix="csproj";
   if(lang=="python")  suffix="py"
-  //code=box(testData,code,lang,funcName);
-  //trueCode=box(testData,trueCode,lang,funcName);
+  code=await box(testData,code,lang,funcName);
+  trueCode=await box(testData,trueCode,lang,funcName);
   await createFunction(exerciseId,lang,funcName,code,suffix);
   await createFunction(exerciseId+"C",lang,trueFuncName,trueCode,suffix);
   
@@ -187,29 +187,109 @@ function getPackageConf(funcName)
   return packageConf;
 }
 
-async function isFunction(code)
+async function isFunction(code,lang)
 {
-  if(code.split(" ")[0]=="function")
-    return true;
-  return false;
+  if(code.split(" ")[0]=="function"&&lang=="node"){
+    return{answer: true,name: code.split(" ")[1].split("(")[0]};
+  }
+  if(code.split(" ")[0]=="def"&&lang=="python") {
+    return{answer: true,name: code.split(" ")[1].split("(")[0]};
+  }
+  return{answer: false,name: "__"};
 }
 
 
-function box(testData,code,lang,funcName){
-  if(lang=="node") {
-    head=`function box${funcName}(){
-    test=${testData}[0];`;
-    end=`return(${funcName}(test))}`;
+async function box(testData,code,lang,funcName){
+   head=``;
+   end=``;
+  isfunc=await isFunction(code,lang);
+  if(testData.length>0){
+    if(lang=="python"){
+      head=`def boxed${funcName}():
+        input=[]
+        output=[]
+        `;
+      for(var i=0;i<testData.length;i++){
+        head=head+`input.append(${testData[i]})
+          `;
+      }
+      end=`  `;
+      if(isfunc.answer){
+        for(var i=0;i<testData.length;i++){
+          end=end+`output.append(${isfunc.name}(input[${i}]))
+            `;
+        }
+        end=end+` return(output)`;
+      }
+      else{
+        end=end+` return(output)`;
+      }
+      code=await indent(code);
+      result=await indent(head+code+end);
+    }
+    if (lang == "node") {
+      head = `function boxed${funcName}() {
+        var input = [];
+        var output = [];`;
+      for (var i=0; i<testData.length;i++) {
+        head = head + `input.push(${testData[i]})`;
+      }
+      if(isfunc.answer){
+        for(var i=0;i<testData.length;i++){
+          end=end+`output.push(${isfunc.name}(input[${i}]))`;
+        }
+        end=end+`
+        return(output)}`;
+      }
+      else{
+        end=end+`
+        return(output)}`;
+      }
+    }   
+    result=head+code+end;
   }
-  if(lang=="python") {
-    head=`def box${funcName}():
-      test=${testData}[0]
+  else{
+    if(lang=="python"){
+      head=`def boxed${funcName}():
       `;
-    end=`
-     return(${funcName}(test))`;
+        if(isfunc.answer){
+          end=`
+          return(${isfunc.name}())`;
+        }
+        else{
+          end=`
+          return(output)`;
+        }
+        code=await indent(code);
+        result=await indent(head+code+end);
+    }
+    if (lang == "node"){
+      head=`function boxed${funcName}(){`;
+        if(isfunc.answer){
+          end=`return(${isfunc.name}())}`;
+        }
+        else{
+          end=`return(output)}`;
+        }
+        result=head+code+end;
+        
+    }
+
   }
-return(head+code+end);
+  console.log("#####################")
+  return(result);
+} 
+
+async function indent(code){
+  if(process.platform=="darwin")
+  while(code.includes("\r\n")||code.includes("\n")){
+    code = code.replace("\r\n","@@newline+indentaion@@").replace("\n","@@newline+indentaion@@");}
+  if(process.platform=="win32")
+  while(code.includes("\r\n")||code.includes("\n")){
+    code = code.replace("\r\n","@@newline+indentaion@@");}
+  while(code.includes("@@newline+indentaion@@")){
+    code = code.replace("@@newline+indentaion@@","\r\n\t");
+  }
+  
+  return code;
 }
-
-
-

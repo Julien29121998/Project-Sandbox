@@ -1,2 +1,3 @@
 def handle(req):
-	print("hello")
+	def boxedexerc_solution():	      def answer():			return 1+1;
+	          return(answer())

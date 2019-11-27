@@ -1,0 +1,9 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  exerc_solutionc:
+    lang: python
+    handler: ./functions/5dde74d7e6feff6280cd1dbfC/python/exerc_solutionc/src/
+    image: python_exerc_solutionc:latest
