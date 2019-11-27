@@ -1,9 +1,0 @@
-version: 1.0
-provider:
-  name: openfaas
-  gateway: http://127.0.0.1:8080
-functions:
-  exerc_solutionc:
-    lang: node
-    handler: ./functions/5dde6679c55f155b586c482aC/node/exerc_solutionc/src/
-    image: node_exerc_solutionc:latest
