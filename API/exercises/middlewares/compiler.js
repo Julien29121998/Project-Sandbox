@@ -1,18 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 const {deploy,invoke,call} = require('../../utils/fn');
-const createDir=require('./mkdir')
-
+const createDir=require('./mkdir');
+const {box,isFunction}=require('./box');
+const {getNodeCodeTemplet,getNodeFunctionCodeTemplet,getPythonCodeTemplet,getPythonFunctionCodeTemplet}=require('./getCodeTemplet');
+const {getYmlTemplet,getPackageConf}=require('./getConfigTemplet');
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
 exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name) => {
   const lang=chosenLanguage;
   var funcName=name+"_solution";
   var trueFuncName=funcName+"c";
-  //const code=req.body.code;
-  //const exerciseId=req.params.exerciseId;
   var suffix="";
-  //var truefuncName=funcName+'CORRECTION'
   //here we need to decide the suffix of src file depending on the language
   if(lang=="node") suffix="js";
   if(lang=="csharp") suffix="csproj";
@@ -97,7 +96,7 @@ async function createPythonFunction(exerciseId,lang,funcName,code,suffix)
   if(isCodeFunction)
     codeContext=await getPythonFunctionCodeTemplet(code,funcName);
   else
-    codeContext=await getPythonFunctionCodeTemplet(code,funcName);
+    codeContext=await getPythonCodeTemplet(code,funcName);
   //create function source file
   fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/handler.${suffix}`, codeContext, err => {
       if(err) return console.log(err);
@@ -143,177 +142,5 @@ async function deployFunction(exerciseId,lang,funcName)
 
 }
 
-function getYmlTemplet(exerciseId,lang,funcName)
-{
-  const ymlConf=`version: 1.0
-provider:
-  name: openfaas
-  gateway: http://127.0.0.1:8080
-functions:
-  ${funcName}:
-    lang: ${lang}
-    handler: ./functions/${exerciseId}/${lang}/${funcName}/src/
-    image: ${lang}_${funcName}:latest
-`
- 
-  return ymlConf;
-}
-
-async function getNodeCodeTemplet(code)
-{
-  const codeTemplet=`
-\"use strict\"
-module.exports = (context, callback) => {
-   ${code};
-}`
-  return codeTemplet;
-}
-
-async function getPythonFunctionCodeTemplet(code,funcName)
-{
-  const codeTemplet=`def handle(req):
-\t${code}
-\treturn ${funcName}()`
-  return codeTemplet;
-}
-
-async function getPythonCodeTemplet(code,funcName)
-{
-  const codeTemplet=`def handle(req):
-\t${code}
-`
-  return codeTemplet;
-}
 
 
-
-async function getNodeFunctionCodeTemplet(code,funcName,exerciseId)
-{
-  var codeTemplet=`
-\"use strict\"
-const func=require('./${funcName}.js')
-module.exports = (context, callback) => {
-   console.log( func.${funcName}());
-}`
-  return codeTemplet;
-}
-
-function getPackageConf(funcName)
-{
-  const packageConf=`{
-    \"name\": \"${funcName}\",
-    \"version\": \"0.0.1\",
-    \"main\": \"handler.js\"
-  }
-  `
-  return packageConf;
-}
-
-async function isFunction(code,lang)
-{
-  if(code.split(" ")[0]=="function"&&lang=="node"){
-    return{answer: true,name: code.split(" ")[1].split("(")[0]};
-  }
-  if(code.split(" ")[0]=="def"&&lang=="python") {
-    return{answer: true,name: code.split(" ")[1].split("(")[0]};
-  }
-  return{answer: false,name: "__"};
-}
-
-
-async function box(testData,code,lang,funcName){
-  head=``;
-  end=``;
- isfunc=await isFunction(code,lang);
- if(testData.length>0){
-   if(lang=="python"){
-     head=`def boxed${funcName}():\n\tinput=[]\n\toutput=[]\n\t`;
-     for(var i=0;i<testData.length;i++){
-       head=head+`input.append(${testData[i]})\n\t`;
-     }
-     end=`\n\t`;
-     if(isfunc.answer){
-       for(var i=0;i<testData.length;i++){
-         end=end+`output.append(${isfunc.name}(input[${i}]))\n\t`;
-       }
-       end=end+`return(output)`;
-     }
-     else{
-       end=end+`return(output)`;
-     }
-     code=await indent(code);
-     result=await indent(head+code+end);
-   }
-   if (lang == "node") {
-     head = `function boxed${funcName}() {
-       var input = [];
-       var output = [];`;
-     for (var i=0; i<testData.length;i++) {
-       head = head + `input.push(${testData[i]})`;
-     }
-     if(isfunc.answer){
-       for(var i=0;i<testData.length;i++){
-         end=end+`output.push(${isfunc.name}(input[${i}]))`;
-       }
-       end=end+`
-       return(output)}`;
-     }
-     else{
-       end=end+`
-       return(output)}`;
-     }
-     result=head+code+end;
-   }    
- }
- else{
-   if(lang=="python"){
-     head=`def boxed${funcName}():\n\t`;
-     end=`\n`;
-       if(isfunc.answer){
-         end=end+`\treturn(${isfunc.name}())`;
-       }
-       else{
-         end=end+`\treturn(output)`;
-       }
-       code=await indent(code);
-       result=await indent(head+code+end);
-   }
-   if (lang == "node"){
-     head=`function boxed${funcName}(){`;
-       if(isfunc.answer){
-         end=`return(${isfunc.name}())}`;
-       }
-       else{
-         end=`return(output)}`;
-       }
-       result=head+code+end;
-       
-   }
-
- }
- return(result);
-} 
-async function indent(code){
-  var os=process.platform;
-  if(process.platform=="linux"||process.platform=="win32")
-  {
-    while(code.includes("\n")){
-      code = code.replace("\n","@@newline+indentation@@");}
-    while(code.includes("@@newline+indentation@@")){
-      code = code.replace("@@newline+indentation@@","\n\t");
-    }
-    
-    return code;
-  }
-  if(process.platform=="darwin")
-  {
-    while(code.includes("\n")){
-      code = code.replace("\n","@@newline+indentation@@");}
-    while(code.includes("@@newline+indentation@@")){
-      code = code.replace("@@newline+indentation@@","\n\t");
-    }
-    
-    return code;
-  }
-
-}

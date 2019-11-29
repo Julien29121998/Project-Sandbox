@@ -1,0 +1,9 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  boxedpythonsplitplus_solution:
+    lang: python
+    handler: ./functions/5de0e74563ef0fda2d9b88f3/python/boxedpythonsplitplus_solution/src/
+    image: python_boxedpythonsplitplus_solution:latest
