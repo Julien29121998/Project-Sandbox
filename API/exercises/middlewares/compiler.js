@@ -50,17 +50,16 @@ async function createNodeFunction(exerciseId,lang,funcName,code,suffix)
 {
   var ymlConf=getYmlTemplet(exerciseId,lang,funcName);
   var packageConf=getPackageConf(funcName);
-  var isCodeFunction=await isFunction(code,lang);
+  //var isCodeFunction=await isFunction(code,lang);
   var codeContext;
-  if(!isCodeFunction.answer)
-  
-    codeContext=await getNodeCodeTemplet(code);
-  else
-  {
+  // if(!isCodeFunction.answer)
+  //   codeContext=await getNodeCodeTemplet(code);
+  // else
+  // {
     codeContext=await getNodeFunctionCodeTemplet(code,funcName,exerciseId);
     code=`exports.${funcName}=${funcName}
     `+code;
-  }
+  // }
   
   await createDirs(exerciseId,lang,funcName);
   //replace \n \r\n \r
@@ -89,14 +88,10 @@ async function createPythonFunction(exerciseId,lang,funcName,code,suffix)
 {
   var ymlConf=getYmlTemplet(exerciseId,lang,funcName);
   var codeContext;
-  var isCodeFunction=await isFunction(code,lang);
   await createDirs(exerciseId,lang,funcName);
   //replace \n \r\n \r
   code=decodeCode(code);
-  if(isCodeFunction)
-    codeContext=await getPythonFunctionCodeTemplet(code,funcName);
-  else
-    codeContext=await getPythonCodeTemplet(code,funcName);
+  codeContext=await getPythonFunctionCodeTemplet(code,funcName);
   //create function source file
   fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/handler.${suffix}`, codeContext, err => {
       if(err) return console.log(err);
@@ -110,7 +105,6 @@ async function createPythonFunction(exerciseId,lang,funcName,code,suffix)
   
 }
 
-  //fs.writeFileSync(dst, fs.readFileSync(src));
 
 
 async function createDirs(exerciseId,lang,funcName)
@@ -126,6 +120,8 @@ function decodeCode(code)
     code = code.replace("\r\n","\r").replace("\n","\r");
   if(process.platform=="win32")
     code = code.replace("\r\n","\n");
+  if(process.platform=="linux")
+    code=code.replace("\r\n",'\n');
   
   return code;
       

@@ -74,9 +74,9 @@ async function box(testData,code,lang,funcName){
          if(isfunc.answer){
            end=end+`\treturn(${isfunc.name}())`;
          }
-         else{
-           end=end+`\treturn(output)`;
-         }
+        //  else{
+        //    end=end+`\treturn(output)`;
+        //  }
          code=await indent(code);
          result=await indent(head+code+end);
      }
@@ -85,9 +85,9 @@ async function box(testData,code,lang,funcName){
          if(isfunc.answer){
            end=`return(${isfunc.name}())}`;
          }
-         else{
-           end=`return(output)}`;
-         }
+          else{
+            end=`}`;
+          }
          result=head+code+end;
          
      }

@@ -24,7 +24,7 @@ async function getNodeFunctionCodeTemplet(code,funcName,exerciseId)
 \"use strict\"
 const func=require('./${funcName}.js')
 module.exports = (context, callback) => {
-   console.log( func.${funcName}());
+   return func.${funcName}();
 }`
   return codeTemplet;
 }
