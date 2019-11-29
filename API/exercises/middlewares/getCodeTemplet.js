@@ -18,7 +18,7 @@ async function getPythonCodeTemplet(code,funcName)
 
 
 
-async function getNodeFunctionCodeTemplet(code,funcName,exerciseId)
+async function getNodeFunctionCodeTemplet(code,funcName)
 {
   var codeTemplet=`
 \"use strict\"
@@ -39,9 +39,56 @@ module.exports = (context, callback) => {
   return codeTemplet;
 }
 
+async function ifNodeImprtedModule(unboxedCode)
+{
+  return unboxedCode.indexOf("require")!=-1;
+}
+
+async function getNodeImportedModule(unboxedCode)
+{
+  var flag="require";
+  var modules='';
+  if(unboxedCode.indexOf(flag)!=-1)
+  {
+    var symNewLine;
+    switch(process.platform)
+    {
+      case ('linux'):
+        symNewLine='\n';
+        break;
+      case('darwin'):
+        symNewLine='\r';
+        break;
+      case ('win32'):
+        symNewLine='\r\n';
+
+    }
+    var lines=unboxedCode.split(symNewLine);
+    var rawCode="";
+    lines.forEach(line => {
+      if(line.indexOf(flag)!=-1)
+      {
+        modules+=line+symNewLine;
+      }
+      else
+        rawCode+=line;
+      
+    });
+    //unboxedCode.replace(modules,symNewLine);
+    return {modules:modules, code:rawCode}
+
+  }
+  else
+    return unboxedCode;
+  
+}
+
+
 module.exports = {
     getNodeCodeTemplet: getNodeCodeTemplet,
     getNodeFunctionCodeTemplet: getNodeFunctionCodeTemplet,
     getPythonCodeTemplet:getPythonCodeTemplet,
-    getPythonFunctionCodeTemplet:getPythonFunctionCodeTemplet
+    getPythonFunctionCodeTemplet:getPythonFunctionCodeTemplet,
+    getNodeImportedModule:getNodeImportedModule,
+    ifNodeImprtedModule:ifNodeImprtedModule
 }

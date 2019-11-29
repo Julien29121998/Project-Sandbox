@@ -1,0 +1,1 @@
+var moment=require('moment')exports.boxednodemodule_solutionc=boxednodemodule_solutionc    function boxednodemodule_solutionc(){function answer(){return moment().format('yyyy');}return(answer())}

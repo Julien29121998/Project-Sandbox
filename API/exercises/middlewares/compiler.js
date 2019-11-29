@@ -3,7 +3,7 @@ const path = require('path');
 const {deploy,invoke,call} = require('../../utils/fn');
 const createDir=require('./mkdir');
 const {box,isFunction}=require('./box');
-const {getNodeCodeTemplet,getNodeFunctionCodeTemplet,getPythonCodeTemplet,getPythonFunctionCodeTemplet}=require('./getCodeTemplet');
+const {getNodeFunctionCodeTemplet,getPythonFunctionCodeTemplet,ifNodeImprtedModule,getNodeImportedModule}=require('./getCodeTemplet');
 const {getYmlTemplet,getPackageConf}=require('./getConfigTemplet');
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
@@ -16,12 +16,34 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
   if(lang=="node") suffix="js";
   if(lang=="csharp") suffix="csproj";
   if(lang=="python")  suffix="py"
+  var modulesCode,modulesTrueCode;
+  
+  code=await decodeCode(code);
+  trueCode=await decodeCode(trueCode);
+  if(lang=="node")
+  {    
+    //check whether user's code imported modules
+    if(await ifNodeImprtedModule(code)==true)
+    {
+      var res = await getNodeImportedModule(code);
+      code=res.code;
+      modulesCode=res.modules;
+    }
+    //check whether truecode imported modules
+    if(await ifNodeImprtedModule(trueCode)==true)
+    {
+      var res = await getNodeImportedModule(trueCode);
+      trueCode=res.code;
+      modulesTrueCode=res.modules;
+    }
+  }
+  
   code=await box(testData,code,lang,funcName);
   trueCode=await box(testData,trueCode,lang,trueFuncName);
   funcName="boxed"+funcName;
   trueFuncName="boxed"+trueFuncName;
-  await createFunction(exerciseId,lang,funcName,code,suffix);
-  await createFunction(exerciseId+"c",lang,trueFuncName,trueCode,suffix);
+  await createFunction(exerciseId,lang,funcName,code,suffix,modulesCode);
+  await createFunction(exerciseId+"c",lang,trueFuncName,trueCode,suffix,modulesTrueCode);
   var function_res=await deployFunction(exerciseId,lang,funcName);
   var correction_res=await deployFunction(exerciseId+"c",lang,trueFuncName)
   var score = 0;
@@ -36,17 +58,18 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
 };
 
 //create a new node function
-async function createFunction(exerciseId,lang,funcName,code,suffix)
+async function createFunction(exerciseId,lang,funcName,code,suffix,modules)
 {
+  
   if(lang=="node")
-    createNodeFunction(exerciseId,lang,funcName,code,suffix);
+    createNodeFunction(exerciseId,lang,funcName,code,suffix,modules);
   if(lang=="python")
     createPythonFunction(exerciseId,lang,funcName,code,suffix);
   
   
 }
 
-async function createNodeFunction(exerciseId,lang,funcName,code,suffix)
+async function createNodeFunction(exerciseId,lang,funcName,code,suffix,modules)
 {
   var ymlConf=getYmlTemplet(exerciseId,lang,funcName);
   var packageConf=getPackageConf(funcName);
@@ -56,14 +79,16 @@ async function createNodeFunction(exerciseId,lang,funcName,code,suffix)
   //   codeContext=await getNodeCodeTemplet(code);
   // else
   // {
-    codeContext=await getNodeFunctionCodeTemplet(code,funcName,exerciseId);
+    codeContext=await getNodeFunctionCodeTemplet(code,funcName);
     code=`exports.${funcName}=${funcName}
     `+code;
   // }
   
   await createDirs(exerciseId,lang,funcName);
   //replace \n \r\n \r
-  code=decodeCode(code);
+  
+  code=modules+getNewLineSymb()+code;
+  code=await decodeCode(code);
   //create function source file
   fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/${funcName}.${suffix}`, code, err => {
     if(err) return console.log(err);
@@ -114,17 +139,30 @@ async function createDirs(exerciseId,lang,funcName)
 }
 
 
-function decodeCode(code)
+async function decodeCode(code)
 {
   if(process.platform=="darwin")
-    code = code.replace("\r\n","\r").replace("\n","\r");
+    code = code.replace(/\r\n/g,"\r").replace(/\n/g,"\r");
   if(process.platform=="win32")
-    code = code.replace("\r\n","\n");
+    code = code.replace(/\r\n/g,"\r\n");
   if(process.platform=="linux")
-    code=code.replace("\r\n",'\n');
+    code=code.replace(/\r\n/g,'\n');
   
   return code;
       
+}
+
+function getNewLineSymb()
+{
+  switch(process.platform)
+  {
+    case("darwin"):
+      return "\r";
+    case("linux"):  
+      return "\n";
+    case("win32"):
+      return "\r\n";
+  }
 }
 
 //deploy the function created on the openfaas
