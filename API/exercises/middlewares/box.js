@@ -69,10 +69,10 @@ async function box(testData,code,lang,funcName){
    }
    else{
      if(lang=="python"){
-       head=`def boxed${funcName}():\n\t`;
+       head=`def boxed${funcName}():\n\t\t`;
        end=`\n`;
          if(isfunc.answer){
-           end=end+`\treturn(${isfunc.name}())`;
+           end=end+`\t\treturn(${isfunc.name}())`;
          }
         //  else{
         //    end=end+`\treturn(output)`;
@@ -111,10 +111,11 @@ async function box(testData,code,lang,funcName){
     }
     if(process.platform=="darwin")
     {
-      while(code.includes("\n")){
-        code = code.replace("\n","@@newline+indentation@@");}
+      // while(code.includes("\n")||code.includes("\r")||code.includes("\n\t")||code.includes("\r\t")){
+      //   //code = code.replace("\r","@@newline+indentation@@");}
+        code = code.replace(/\r/g,"\r\t");
       while(code.includes("@@newline+indentation@@")){
-        code = code.replace("@@newline+indentation@@","\n\t");
+        code = code.replace("@@newline+indentation@@","\r\t");
       }
       
       return code;

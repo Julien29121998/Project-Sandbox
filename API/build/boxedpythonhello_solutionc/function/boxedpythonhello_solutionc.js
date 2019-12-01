@@ -1,0 +1,1 @@
+exports.boxedpythonhello_solutionc=boxedpythonhello_solutionc    function boxedpythonhello_solutionc(){print("hello")}

@@ -3,7 +3,9 @@ const path = require('path');
 const {deploy,invoke,call} = require('../../utils/fn');
 const createDir=require('./mkdir');
 const {box,isFunction}=require('./box');
-const {getNodeFunctionCodeTemplet,getPythonFunctionCodeTemplet,ifNodeImprtedModule,getNodeImportedModule}=require('./getCodeTemplet');
+const {getNodeFunctionCodeTemplet,getPythonFunctionCodeTemplet,
+  ifNodeImprtedModule,getNodeImportedModule,
+  ifPythonImprtedModule,getPythonImportedModule}=require('./getCodeTemplet');
 const {getYmlTemplet,getPackageConf}=require('./getConfigTemplet');
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
@@ -14,7 +16,6 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
   var suffix="";
   //here we need to decide the suffix of src file depending on the language
   if(lang=="node") suffix="js";
-  if(lang=="csharp") suffix="csproj";
   if(lang=="python")  suffix="py"
   var modulesCode,modulesTrueCode;
   
@@ -33,6 +34,23 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
     if(await ifNodeImprtedModule(trueCode)==true)
     {
       var res = await getNodeImportedModule(trueCode);
+      trueCode=res.code;
+      modulesTrueCode=res.modules;
+    }
+  }
+  if(lang=="python")
+  {
+    //check whether user's code imported modules
+    if(await ifPythonImprtedModule(code)==true)
+    {
+      var res = await getPythonImportedModule(code);
+      code=res.code;
+      modulesCode=res.modules;
+    }
+    //check whether truecode imported modules
+    if(await ifPythonImprtedModule(trueCode)==true)
+    {
+      var res = await getPythonImportedModule(trueCode);
       trueCode=res.code;
       modulesTrueCode=res.modules;
     }
@@ -64,7 +82,7 @@ async function createFunction(exerciseId,lang,funcName,code,suffix,modules)
   if(lang=="node")
     createNodeFunction(exerciseId,lang,funcName,code,suffix,modules);
   if(lang=="python")
-    createPythonFunction(exerciseId,lang,funcName,code,suffix);
+    createPythonFunction(exerciseId,lang,funcName,code,suffix,modules);
   
   
 }
@@ -87,7 +105,8 @@ async function createNodeFunction(exerciseId,lang,funcName,code,suffix,modules)
   await createDirs(exerciseId,lang,funcName);
   //replace \n \r\n \r
   
-  code=modules+getNewLineSymb()+code;
+  if(!isNaN(modules))
+    code=modules+getNewLineSymb()+code;
   code=await decodeCode(code);
   //create function source file
   fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/${funcName}.${suffix}`, code, err => {
@@ -109,14 +128,16 @@ async function createNodeFunction(exerciseId,lang,funcName,code,suffix,modules)
     console.log('succeed in writing package json config file');
   })
 }
-async function createPythonFunction(exerciseId,lang,funcName,code,suffix)
+async function createPythonFunction(exerciseId,lang,funcName,code,suffix,modules)
 {
   var ymlConf=getYmlTemplet(exerciseId,lang,funcName);
   var codeContext;
   await createDirs(exerciseId,lang,funcName);
   //replace \n \r\n \r
-  code=decodeCode(code);
+  //code=await decodeCode(code);
   codeContext=await getPythonFunctionCodeTemplet(code,funcName);
+  if(!(modules==undefined))
+    codeContext=modules+getNewLineSymb()+codeContext;
   //create function source file
   fs.writeFile(`./functions/${exerciseId}/${lang}/${funcName}/src/handler.${suffix}`, codeContext, err => {
       if(err) return console.log(err);

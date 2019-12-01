@@ -44,6 +44,11 @@ async function ifNodeImprtedModule(unboxedCode)
   return unboxedCode.indexOf("require")!=-1;
 }
 
+async function ifPythonImprtedModule(unboxedCode)
+{
+  return unboxedCode.indexOf("import")!=-1;
+}
+
 async function getNodeImportedModule(unboxedCode)
 {
   var flag="require";
@@ -83,6 +88,46 @@ async function getNodeImportedModule(unboxedCode)
   
 }
 
+async function getPythonImportedModule(unboxedCode)
+{
+  var flag="import";
+  var modules='';
+  if(unboxedCode.indexOf(flag)!=-1)
+  {
+    var symNewLine;
+    switch(process.platform)
+    {
+      case ('linux'):
+        symNewLine='\n';
+        break;
+      case('darwin'):
+        symNewLine='\r';
+        break;
+      case ('win32'):
+        symNewLine='\r\n';
+
+    }
+    var lines=unboxedCode.split(symNewLine);
+    var rawCode="";
+    lines.forEach(line => {
+      if(line.indexOf(flag)!=-1)
+      {
+        modules+=line+symNewLine;
+      }
+      else
+        rawCode+=line+symNewLine;
+      
+    });
+    //unboxedCode.replace(modules,symNewLine);
+    return {modules:modules, code:rawCode}
+
+  }
+  else
+    return unboxedCode;
+  
+}
+
+
 
 module.exports = {
     getNodeCodeTemplet: getNodeCodeTemplet,
@@ -90,5 +135,7 @@ module.exports = {
     getPythonCodeTemplet:getPythonCodeTemplet,
     getPythonFunctionCodeTemplet:getPythonFunctionCodeTemplet,
     getNodeImportedModule:getNodeImportedModule,
-    ifNodeImprtedModule:ifNodeImprtedModule
+    ifNodeImprtedModule:ifNodeImprtedModule,
+    getPythonImportedModule:getPythonImportedModule,
+    ifPythonImprtedModule:ifPythonImprtedModule
 }

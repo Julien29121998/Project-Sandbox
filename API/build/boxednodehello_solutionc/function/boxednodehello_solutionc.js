@@ -1,2 +1,1 @@
-exports.boxednodehello_solutionc=boxednodehello_solutionc    function boxednodehello_solutionc(){function answer(){
-console.log("hello");}return(answer())}
+undefinedexports.boxednodehello_solutionc=boxednodehello_solutionc    function boxednodehello_solutionc(){console.log('hello')}

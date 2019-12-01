@@ -1,9 +1,0 @@
-version: 1.0
-provider:
-  name: openfaas
-  gateway: http://127.0.0.1:8080
-functions:
-  boxednodehello_solution:
-    lang: node
-    handler: ./functions/5de0ff332b4856e6a8380563/node/boxednodehello_solution/src/
-    image: node_boxednodehello_solution:latest

@@ -46,15 +46,15 @@ exports.removeById = (req, res) => {
         });
 };
 
-exports.compile = (req, res) => {
+exports.compile =  (req, res) => {
     let chosenLanguage = req.body.lang;
     let code = req.body.code;
     ExerciseModel.findById(req.params.exerciseId)
-        .then((exerciseFound)=>{
+        .then(async(exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
             let name=exerciseFound.name;
-            result=Compiler.compile(req.params.exerciseId,code,chosenLanguage,testData,trueCode,name);
+            result= await Compiler.compile(req.params.exerciseId,code,chosenLanguage,testData,trueCode,name);
             res.status(200).send(result);
         });
 
@@ -65,11 +65,11 @@ exports.submit = (req, res) => {
     let chosenLanguage = req.body.lang;
     let code = req.body.code;
     ExerciseModel.findById(req.params.exerciseId)
-        .then((exerciseFound)=>{
+        .then(async (exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
             let name=exerciseFound.name;
-            let score=Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,name).score;
+            let score=await Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,name).score;
             TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: score})
                 .then((resultTr) => {
                     UserModel.modifyScore(userId,score)
