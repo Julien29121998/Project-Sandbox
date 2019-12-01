@@ -1,0 +1,432 @@
+swagger: "2.0"
+info:
+  description: "The API specification of backend of project SandBox."
+  version: "1.0.0"
+  title: "SandBox Backend"
+host: "localhost:3600"
+basePath: "/"
+tags:
+- name: "user"
+  description: "Operations about user"
+- name: "exercise"
+  description: "Operations about exercise"
+
+  
+schemes:
+- "http"
+paths:
+  /users:
+    post:
+      tags:
+      - "user"
+      summary: "create a new user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User that needs to be created"
+        required: true
+        schema:
+          type: object
+          properties:
+            login:
+              type: "string"
+            email:
+              type: "string"
+            password:
+              type: "string"
+            permissionLevel:
+              type: "integer"
+              enum:
+              - 3
+              - 7
+      responses:
+        201:
+          description: "userId of the created user"
+          schema:
+            type: object
+            properties: 
+              userId:
+                type: string
+    get:
+      tags:
+      - "user"
+      summary: "get all of the created users"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"     
+      responses:
+        200:
+          description: "the list of all the created users, with _id of each one"
+  /auth:
+    post:
+      tags:
+      - "user"
+      summary: "get the token of the user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User that needs to be created"
+        required: true
+        schema:
+          type: object
+          properties:
+            login:
+              type: "string"
+            password:
+              type: "string"
+      responses:
+        201:
+          description: "the token of this user"
+          schema:
+            type: object
+            properties: 
+              accessToken:
+                type: string
+              refreshToken:
+                type: string       
+      
+  
+  
+  /users/:userId:
+    delete:
+      tags:
+      - "user"
+      summary: "delete a created user with userId passed in the path"
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: string
+          minimum: 1
+          description: the id of the user which is going to be deleted.
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"     
+      responses:
+        204:
+          description: "deleted successfully"
+    
+    get:
+      tags:
+      - "user"
+      summary: "get a created user with userId "
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json" 
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: string
+          minimum: 1
+          description: the id of the user.
+      responses:
+        '200':
+          description: A user object which contains all of the attributs
+          schema:
+            type: object
+            properties: 
+              login:
+                type: "string"
+              email:
+                type: "string"
+              password:
+                type: "string"
+              permissionLevel:
+                type: "integer"
+                enum:
+                - 3
+                - 7
+              score:
+                type: "integer"
+              id:
+                type: "string"
+
+    patch:
+      tags:
+      - "user"
+      summary: "update a created user with userId"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"   
+      parameters:
+      - in: path
+        name: userId
+        required: true
+        type: string
+        minimum: 1
+        description: the id of the user.
+
+      - in: "body"
+        name: "body"
+        description: "the information that needs to be updated"
+        schema:
+          $ref: "#/definitions/user"
+      responses:
+        '204':
+          description: already updated
+         
+  /exercises:
+    post:
+      tags:
+      - "exercise"
+      summary: "create a new exercise"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User that needs to be created"
+          required: true
+          schema:
+            type: "object"
+            properties: 
+              name:
+                type: string
+              description:
+                type: "string"
+              exampleCode:
+                type: "string"
+              testData:
+                type: "array"
+                items: 
+                  type: "array"
+                  items: 
+                      type: "string"
+              
+      responses:
+        201:
+          description: "created"
+          schema:
+            type: object
+            properties: 
+              id:
+                type: string
+              description: the id of created exercise
+    get:
+      tags:
+      - "exercise"
+      summary: "get all of the created exercises"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"     
+      responses:
+        200:
+          description: "return a list of all the created exercises with all of the attibutes"
+  /exercises/:exerciseId:
+    get:
+      tags:
+      - "exercise"
+      summary: "get a created exercise"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json" 
+      parameters:
+      - in: path
+        name: exerciseId
+        required: true
+        type: string
+        minimum: 1
+        description: the id of the exercise.
+      responses:
+        200:
+          description: all of the attibutes of this exercise              
+          schema:
+            type: object
+            properties: 
+              id:
+                type: string
+              name:
+                type: "string"
+              description:
+                type: "string"
+              exampleCode:
+                type: "string"
+              testData:
+                type: "array"
+                items: 
+                  type: "array"
+                  items: 
+                    type: "string"
+    patch:
+      tags:
+      - "exercise"
+      summary: "update a created exercise"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json" 
+      parameters:
+      - in: path
+        name: exerciseId
+        required: true
+        type: string
+        minimum: 1
+        description: the id of the exercise.
+      - in: "body"
+        name: "body"
+        description: "the information of the exercise that needs to be updated"
+        schema:
+          $ref: "#/definitions/exercise"
+      responses:
+        '204':
+          description: already updated    
+    delete:
+      tags:
+      - "exercise"
+      summary: "delete a created exercise "
+      parameters:
+        - in: path
+          name: exerciseId
+          required: true
+          type: string
+          minimum: 1
+          description: the id of the exercise which needs to be deleted.
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"     
+      responses:
+        204:
+          description: "deleted successfully"  
+    post:
+      tags:
+        - exercise
+      summary: compile the user code for an exercise
+      parameters:
+        - in: path
+          name: exerciseId
+          required: true
+          type: string
+          minimum: 1
+          description: the id of the exercise which user is doing.
+        - in: body
+          name: body
+          description: the code, function name, language information
+          schema:
+            type: object
+            properties: 
+              lang:
+                type: string
+              code:
+                type: "string"
+      responses:
+        '200':
+          description: the result of compilation and running
+          schema:
+            type: object
+            properties: 
+              result:
+                type: "string"
+              time:
+                type: string
+                description: the running time of the code
+  /submit/:exerciseId:
+    post:
+      tags:
+        - exercise
+      summary: create and save the training record after running the code
+      parameters:
+        - in: path
+          name: exerciseId
+          required: true
+          type: string
+          minimum: 1
+          description: the id of the exercise which user is doing.
+        - in: body
+          name: body
+          description: the code, function name, language information
+          schema:
+            type: object
+            properties: 
+              lang:
+                type: string
+              code:
+                type: "string"
+      responses:
+        200:
+          description: saved the training record and modified the user score
+          schema:
+            type: object
+            properties: 
+              score:
+                type: integer
+              idTraining:
+                type: string
+
+
+
+definitions:
+  user:
+    type: "object"
+    properties:
+      login:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      permissionLevel:
+        type: "integer"
+        enum:
+        - 3
+        - 7
+      score:
+        type: "integer"
+    xml:
+      name: "User"
+  
+ 
+     
+
+  exercise:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      exampleCode:
+        type: "string"
+      testData:
+        type: "array"
+        items: 
+          type: "array"
+          items: 
+            type: "string"
+    xml:
+      name: "User"
+  
+
+  training:
+    type: "object"
+    properties: 
+      userId:
+        type: "string"
+        description: "created by the database"
+
+      exerciseId:
+        type: "string"
+        description: "created by the database"
+      date:
+        type: "string"
+      score:
+        type: "integer"
+
+  
