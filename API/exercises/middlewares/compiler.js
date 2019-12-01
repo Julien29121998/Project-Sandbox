@@ -105,7 +105,7 @@ async function createNodeFunction(exerciseId,lang,funcName,code,suffix,modules)
   await createDirs(exerciseId,lang,funcName);
   //replace \n \r\n \r
   
-  if(!isNaN(modules))
+  if(!(modules==undefined))
     code=modules+getNewLineSymb()+code;
   code=await decodeCode(code);
   //create function source file
