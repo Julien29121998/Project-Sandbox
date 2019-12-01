@@ -69,12 +69,12 @@ exports.submit = (req, res) => {
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
             let name=exerciseFound.name;
-            let score=await Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,name).score;
+            let result=await Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,name).score;
             TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: score})
                 .then((resultTr) => {
                     UserModel.modifyScore(userId,score)
                     .then(()=>{
-                    res.status(200).send({score: score, idTraining: resultTr._id});});
+                    res.status(200).send({score: result.score,time:result.time, idTraining: resultTr._id});});
                 });
         });   
 };

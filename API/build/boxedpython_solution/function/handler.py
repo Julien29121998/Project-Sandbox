@@ -1,5 +1,5 @@
 import math;import randomdef handle(req):
 	def boxedpython_solution():
-		def answer():			return 1+1;		
-		return(answer())
+		print('hello');		
+
 	return boxedpython_solution()
