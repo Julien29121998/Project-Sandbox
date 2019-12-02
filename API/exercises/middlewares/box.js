@@ -2,7 +2,7 @@ async function box(testData,code,lang,funcName){
     head=``;
     end=``;
    isfunc=await isFunction(code,lang);
-   if(testData.length>0){
+   if(testData.length>0&&testData[0].length>0){
      if(lang=="python"){
        head=`def boxed${funcName}():\n\tinput=[]\n\toutput=[]\n\t`;
        for(var i=0;i<testData.length;i++){
@@ -102,9 +102,9 @@ async function box(testData,code,lang,funcName){
     if(process.platform=="linux"||process.platform=="win32")
     {
       while(code.includes("\n")){
-        code = code.replace("\n","@@newline+indentation@@");}
+        code = code.replace(/\n/g,"@@newline+indentation@@");}
       while(code.includes("@@newline+indentation@@")){
-        code = code.replace("@@newline+indentation@@","\n\t");
+        code = code.replace("@@newline+indentation@@",/\n\t/g);
       }
       
       return code;
@@ -115,7 +115,7 @@ async function box(testData,code,lang,funcName){
       //   //code = code.replace("\r","@@newline+indentation@@");}
         code = code.replace(/\r/g,"\r\t");
       while(code.includes("@@newline+indentation@@")){
-        code = code.replace("@@newline+indentation@@","\r\t");
+        code = code.replace("@@newline+indentation@@",/\r\t/g);
       }
       
       return code;
