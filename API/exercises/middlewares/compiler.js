@@ -56,14 +56,16 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
     }
   }
   
-  code=await box(testData,code,lang,funcName);
+  code= await box(testData,code,lang,funcName);
   trueCode=await box(testData,trueCode,lang,trueFuncName);
   funcName="boxed"+funcName;
   trueFuncName="boxed"+trueFuncName;
   await createFunction(exerciseId,lang,funcName,code,suffix,modulesCode);
   await createFunction(exerciseId+"c",lang,trueFuncName,trueCode,suffix,modulesTrueCode);
-  var function_res=await deployFunction(exerciseId,lang,funcName);
-  var correction_res=await deployFunction(exerciseId+"c",lang,trueFuncName)
+  var func_res_promise= deployFunction(exerciseId,lang,funcName);
+  var corr_res_promise= deployFunction(exerciseId+"c",lang,trueFuncName)
+  var function_res = await func_res_promise;
+  var correction_res = await corr_res_promise;
   var score = 0;
   if(function_res.res==correction_res.res){
     score =3;
@@ -71,7 +73,7 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
   console.log("result:"+function_res.res);
   console.log("true answer:"+correction_res.res);
   console.log("point: "+score);
-  return({score: score,time: function_res.duration}); 
+  return({score: score, time: function_res.duration, result: function_res.res}); 
   //return function_res;
 };
 

@@ -4,26 +4,40 @@ async function box(testData,code,lang,funcName){
    isfunc=await isFunction(code,lang);
    if(testData.length>0&&testData[0].length>0){
      if(lang=="python"){
-       head=`def boxed${funcName}():\n\tinput=[]\n\toutput=[]\n\t`;
-       for(var i=0;i<testData.length;i++){
-        if(!isNaN(testData))
-            head=head+`input.append([${testData[i]}])\n\t`;
-        else
-            head=head+`input.append(['${testData[i]}'])\n\t`;
-       }
+       head=`def boxed${funcName}():\n\t\tinput=[]\n\t\toutput=[]\n\t\t`;
+        for(var i=0;i<testData.length;i++)
+        {
+          head=head+`input.append(`;
+          for(var j=0;j<testData[i].length;j++)
+          {
+            
+            if(!(typeof(testData[i][j])==="number"))
+            {
+                var strTestData=[];
+                for(var j=0;j<testData[i].length;j++)
+                    strTestData[j]="\'"+testData[i][j]+"\'";
+                head=head+`[${strTestData}])\n\t\t`;
+            }
+            else
+                head=head+`[${testData[i]}])\n\t\t`;
+            break;
+          }
+        }
+       
         
-       end=`\n\t`;
+       end=`\n\t\t`;
        if(isfunc.answer){
          for(var i=0;i<testData.length;i++)
          {
-        end=end+`output.append(${isfunc.name}(`
-         for(var j=0;j<testData[i].length;j++){
-             if(j!=testData[i].length-1)
-                end=end+`input[${i}][${j}],`;
-             else
-                end=end+`input[${i}][${j}]))\n\t`;
-         }
-         
+          end=end+`output.append(${isfunc.name}(`
+          for(var j=0;j<testData[i].length;j++)
+          {
+                if(j!=testData[i].length-1)
+                    end=end+`input[${i}][${j}],`;
+                else
+                    end=end+`input[${i}][${j}]))\n\t\t`;
+            
+          }
           }
           end=end+`return(output)`;
         }
@@ -125,10 +139,10 @@ async function box(testData,code,lang,funcName){
 
   async function isFunction(code,lang)
   {
-    if(code.split(" ")[0]=="function"&&lang=="node"){
+    if(code.trim().split(" ")[0]=="function"&&lang=="node"){
       return{answer: true,name: code.split(" ")[1].split("(")[0]};
     }
-    if(code.split(" ")[0]=="def"&&lang=="python") {
+    if(code.trim().split(" ")[0]=="def"&&lang=="python") {
       return{answer: true,name: code.split(" ")[1].split("(")[0]};
     }
     return{answer: false,name: "__"};

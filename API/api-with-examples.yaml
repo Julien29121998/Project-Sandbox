@@ -334,6 +334,8 @@ paths:
             properties: 
               result:
                 type: "string"
+              score:
+                type: "string"
               time:
                 type: string
                 description: the running time of the code
@@ -411,7 +413,7 @@ definitions:
         items: 
           type: "array"
           items: 
-            type: "string"
+            type: "String/Number/Array"
     xml:
       name: "User"
   
