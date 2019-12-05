@@ -100,8 +100,7 @@ async function createNodeFunction(exerciseId,lang,funcName,code,suffix,modules)
   // else
   // {
     codeContext=await getNodeFunctionCodeTemplet(code,funcName);
-    code=`exports.${funcName}=${funcName}
-    `+code;
+    code=`exports.${funcName}=${funcName}\n`+code;
   // }
   
   await createDirs(exerciseId,lang,funcName);

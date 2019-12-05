@@ -1,0 +1,1 @@
+var fs=require('fs');exports.boxedhello_python_solutionc=boxedhello_python_solutioncfunction boxedhello_python_solutionc() {	var input = [];	var output = [];	input.push([2,4])	input.push([3,4])	function hello(a,b){ return a*b}	output.push(hello(input[0][0],input[0][1]))	output.push(hello(input[1][0],input[1][1]))	return(output)}
