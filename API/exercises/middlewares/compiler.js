@@ -93,19 +93,10 @@ async function createNodeFunction(exerciseId,lang,funcName,code,suffix,modules)
 {
   var ymlConf=getYmlTemplet(exerciseId,lang,funcName);
   var packageConf=getPackageConf(funcName);
-  //var isCodeFunction=await isFunction(code,lang);
   var codeContext;
-  // if(!isCodeFunction.answer)
-  //   codeContext=await getNodeCodeTemplet(code);
-  // else
-  // {
-    codeContext=await getNodeFunctionCodeTemplet(code,funcName);
-    code=`exports.${funcName}=${funcName}\n`+code;
-  // }
-  
+  codeContext=await getNodeFunctionCodeTemplet(code,funcName);
+  code=`exports.${funcName}=${funcName}\n`+code;
   await createDirs(exerciseId,lang,funcName);
-  //replace \n \r\n \r
-  
   if(!(modules==undefined))
     code=modules+getNewLineSymb()+code;
   code=await decodeCode(code);

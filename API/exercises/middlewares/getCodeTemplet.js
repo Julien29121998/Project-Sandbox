@@ -24,7 +24,10 @@ async function getNodeFunctionCodeTemplet(code,funcName)
 \"use strict\"
 const func=require('./${funcName}.js')
 module.exports = (context, callback) => {
-   return func.${funcName}();
+  var result=func.${funcName}();
+  if(!(result==undefined))
+    console.log(result);
+   return result;
 }`
   return codeTemplet;
 }
@@ -76,7 +79,7 @@ async function getNodeImportedModule(unboxedCode)
         modules+=line+symNewLine;
       }
       else
-        rawCode+=line;
+        rawCode+=line+symNewLine+'\t';
       
     });
     //unboxedCode.replace(modules,symNewLine);

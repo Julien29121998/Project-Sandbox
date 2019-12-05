@@ -3,7 +3,7 @@ async function box(testData,code,lang,funcName){
   end=``;
   isfunc=await isFunction(code,lang);
   if(testData.length>0&&testData[0].length>0)
-    result=await ifHasInput(testData,funcName,lang,head,code,end,)
+    result=await funcHasInput(testData,funcName,lang,head,code,end,)
   else
     result=await ifNoInput(funcName,lang,head,code,end);
   return(result);
@@ -30,7 +30,7 @@ async function ifNoInput( funcName,lang, head, code, end)
   return result;
 }
 
-async function ifHasInput(testData, funcName,lang, head, code, end)
+async function funcHasInput(testData, funcName,lang, head, code, end)
 {
   if(lang=="python")
     result = pyFuncWithInput(testData, funcName,lang, head, code, end)
@@ -38,10 +38,17 @@ async function ifHasInput(testData, funcName,lang, head, code, end)
     result = nodeFuncWithInput(testData, funcName,lang, head, code, end)
   return result;
 }
+async function ifFuncHasOutput(code)
+{
+  var i=code.indexOf("return");
+  return code.indexOf("return")!=-1;
+}
 
 async function nodeFuncWithInput(testData, funcName,lang, head, code, end)
 {
-  head = `function boxed${funcName}() {\n\tvar input = [];\n\tvar output = [];\n\t`;
+  head = `function boxed${funcName}() {\n\tvar input = [];\n\t`;
+  if(await ifFuncHasOutput(code)==true)
+    head +=`var output = [];\n\t`
   for (var i=0; i<testData.length;i++) {
   head = head + `input.push(`
   for(var j=0;j<testData[i].length;j++)
@@ -74,23 +81,27 @@ async function nodeFuncWithInput(testData, funcName,lang, head, code, end)
   end=`\n\t`;
   if(isfunc.answer)
   {
-    for (var i=0; i<testData.length;i++) 
+    if(await ifFuncHasOutput(code)==true)
     {
-      end=end+`output.push(${isfunc.name}(`
-      for(var j=0;j<testData[i].length;j++)
+      for (var i=0; i<testData.length;i++) 
       {
-        if(j!=testData[i].length-1)
-          end=end+`input[${i}][${j}],`;
-        else
-          end=end+`input[${i}][${j}]))\n\t`;
+        end=end+`output.push(${isfunc.name}(`
+        for(var j=0;j<testData[i].length;j++)
+        {
+          if(j!=testData[i].length-1)
+            end=end+`input[${i}][${j}],`;
+          else
+            end=end+`input[${i}][${j}]))\n\t`;
+        }
       }
+      end=end+`return output}\n`;
     }
-    end=end+`return(output)}`;
+    else end+=`${isfunc.name}()\n}`
   }
   else
   {
     end=end+`
-    return(output)}`;
+    return output}`;
   }
   result=head+code+end;
   return result;
@@ -174,7 +185,7 @@ async function arrayFuncParam(testData,head,isLast, isFirst)
   if(isFirst)
     head=head+'['
   if(isLast)
-    head=head+`[${strTestData}]])\n\t\t`;
+    head=head+`[${strTestData}]])\n\t`;
   else
     head=head+`[${strTestData}],`;
   return head;
