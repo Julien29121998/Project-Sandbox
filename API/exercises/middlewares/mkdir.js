@@ -2,6 +2,14 @@ const fs = require('fs');
 const path = require('path');
 
 /**
+ * This module is used to create a directory recursively
+ */
+
+module.exports = {
+    createDir:createDir
+}
+
+/**
  * get the path information
  * @param {string} path 
  */
@@ -37,7 +45,7 @@ function getStat(path){
   * create the dir if it doesn't exsite
   * @param {string} dir path
   */
-  async function dirExists(dir){
+  async function createDir(dir){
     let isExists = await getStat(dir);
     if(isExists && isExists.isDirectory()){
         return true;
@@ -45,9 +53,9 @@ function getStat(path){
         return false;
     }
     //if the dir doesn't exist
-    let tempDir = path.parse(dir).dir;      //get the parent dir
+    let parentDir = path.parse(dir).dir;      //get the parent dir
     //check in recursive untill the parent dir exists
-    let status = await dirExists(tempDir);
+    let status = await createDir(parentDir);
     let mkdirStatus;
     if(status){
         mkdirStatus = await mkdir(dir);
@@ -55,6 +63,4 @@ function getStat(path){
     return mkdirStatus;
   }
 
-  module.exports = {
-    dirExists:dirExists
-  }
+  

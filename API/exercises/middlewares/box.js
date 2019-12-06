@@ -1,4 +1,3 @@
-
 /**
  * ----------------------------------------------------------------------------
  * This box module is used to create the content of the box function which packs 
@@ -21,6 +20,8 @@ module.exports = {
  * @param {string} code code of userFunc
  * @param {string} lang language of user code. "python" or "node"
  * @param {string} funcName name of user code. By default it's the name of exercise. It's used to create the name of box function
+ * 
+ * @return {string} result The boxedfunction completed
  */
 async function box(testData,code,lang,funcName){
   //check whether user code is a function, if it's a function, isFunc.answer=true
@@ -34,6 +35,7 @@ async function box(testData,code,lang,funcName){
     result=await ifNoInput(funcName,lang,code,isFunc);
   return(result);
 } 
+
 /**
  * Function used to create box function for a userfunc without parameters 
  * and an exercise without input data.
@@ -41,6 +43,8 @@ async function box(testData,code,lang,funcName){
  * @param {string} lang language of user code. "python" or "node"
  * @param {string} code the user code
  * @param {Object} isFunc isFunc.answer=true if user code is a function
+ * 
+ * @return {string} result The boxedfunction completed
  */
 async function ifNoInput( funcName,lang, code, isFunc){
   //the part in the boxfunc before user code
@@ -70,6 +74,8 @@ async function ifNoInput( funcName,lang, code, isFunc){
   }
   return result;
 }
+
+
 /**
  * Function used to create box function for the user code which is a function with paramter(s)
  * 
@@ -78,6 +84,7 @@ async function ifNoInput( funcName,lang, code, isFunc){
  * @param {string} lang language of user code. "python" or "node"
  * @param {string} funcName name of user code. By default it's the name of exercise. It's used to create the name of box function
  * 
+ * @return {string} result The boxedfunction completed
  */
 async function funcHasInput(testData, funcName,lang, code){
   var result;
@@ -93,10 +100,13 @@ async function funcHasInput(testData, funcName,lang, code){
   }
   return result;
 }
+
+
 /**
  * Function used to check whether user function has a return value
  * 
  * @param {string} code user function
+ * 
  * @returns true if user function has a return value
  */
 async function ifFuncHasOutput(code){
@@ -107,12 +117,16 @@ async function ifFuncHasOutput(code){
   }
   else throw new Error("Trying to get return value from a non-functionnal user code") 
 }
+
+
 /**
  * Function used to create box function for the nodejs user function with parameters
  * 
  * @param {Array} testData testData of this exercise saved in db. Empty array if exampleFunc has no paramrers.
  * @param {string} funcName name of user code. By default it's the name of exercise. It's used to create the name of box function
  * @param {string} code code of userFunc
+ * 
+ * @return {string} result The nodejs boxedfunction completed
  */
 async function nodeFuncWithInput(testData, funcName, code){
   head = `function boxed${funcName}() {\n\tvar input = [];\n\t`;
@@ -195,6 +209,8 @@ async function nodeFuncWithInput(testData, funcName, code){
  * @param {Array} testData 
  * @param {string} funcName 
  * @param {string} code 
+ * 
+ * @return {string} result The python boxedfunction completed
  */
 async function pyFuncWithInput(testData, funcName, code){
   //input list is used to save the testData, each element is a group of testdata
@@ -277,12 +293,14 @@ async function pyFuncWithInput(testData, funcName, code){
 
 /**
  * Function used to complete the head string if the testData is a three-dimensional array,
- * which means the userFunc takes an array parameter of string or number
+ * which means the userFunc takes array parameter(s) of string or number
  * 
- * @param {Array} testData 
+ * @param {Array} testData an array parameter of user function
  * @param {string} head 
- * @param {string} isLast 
- * @param {string} isFirst 
+ * @param {boolean} isLast true if testData is the first parameter of user function, false otherwise
+ * @param {boolean} isFirst true if testData is the last parameter of user function, false otherwise
+ * 
+ * @return {string} head The head string completed with an array of elements in testData
  */
 async function arrayFuncParam(testData, head, isLast, isFirst){
   var strTestData=[];
@@ -308,6 +326,8 @@ async function arrayFuncParam(testData, head, isLast, isFirst){
  * This is because the userfunc is goint to be integrated in the box function
  * 
  * @param {string} code 
+ * 
+ * @return {string} code The code with more indentations
  */
 async function indent(code){
   if(process.platform=="linux"||process.platform=="win32"){
@@ -329,11 +349,15 @@ async function indent(code){
   }
 }
 
+
 /**
  * Function used to check whether user code is a function or not, for python and nodejs
  * 
  * @param {string} code 
  * @param {string} lang 
+ * 
+ * @return {Object} With attribute answer which is true if user code is a function and false otherwise,
+ *                  attribute name which is the function name if the user code is a function and "__" otherwise.
  */
 async function isFunction(code,lang){
   if(code.trim().split(" ")[0]=="function"&&lang=="node"){

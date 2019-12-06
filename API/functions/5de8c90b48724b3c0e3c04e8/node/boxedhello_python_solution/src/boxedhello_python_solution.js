@@ -1,1 +1,0 @@
-exports.boxedhello_python_solution=boxedhello_python_solutionfunction boxedhello_python_solution() {	var input = [];	input.push(['a','b'])	function hello(a,b){console.log( a+b);}	hello(input[0][0],input[0][1])	}

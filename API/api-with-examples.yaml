@@ -201,6 +201,8 @@ paths:
                 type: "string"
               exampleCode:
                 type: "string"
+              exampleCodeLang:
+                type: "string"
               testData:
                 type: "array"
                 items: 

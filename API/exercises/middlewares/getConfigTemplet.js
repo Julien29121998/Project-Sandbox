@@ -1,5 +1,23 @@
-function getYmlTemplet(exerciseId,lang,funcName)
-{
+/**
+ * This module is used to create the content of YML configuration file for nodejs and python functions,
+ * create the content of package.json for nodejs functions
+ * 
+ */
+module.exports={
+  getYmlTemplet:getYmlTemplet,
+  getPackageConf:getPackageConf
+}
+
+/**
+ * Function used to create the content of YML configuration file
+ * 
+ * @param {string} exerciseId 
+ * @param {string} lang 
+ * @param {string} funcName 
+ * 
+ * @return {string} ymlConf The content of YML configuration  file
+ */
+function getYmlTemplet(exerciseId,lang,funcName){
   const ymlConf=`version: 1.0
 provider:
   name: openfaas
@@ -10,14 +28,18 @@ functions:
     handler: ./functions/${exerciseId}/${lang}/${funcName}/src/
     image: ${lang}_${funcName}:latest
 `
- 
   return ymlConf;
 }
 
 
-
-function getPackageConf(funcName)
-{
+/**
+ * Function used to create the content of package.json file for nodejs functions
+ * 
+ * @param {string} funcName 
+ * 
+ * @return {string} packageConf The content of package.json file
+ */
+function getPackageConf(funcName){
   const packageConf=`{
     \"name\": \"${funcName}\",
     \"version\": \"0.0.1\",
@@ -27,8 +49,3 @@ function getPackageConf(funcName)
   return packageConf;
 }
 
-module.exports={
-    getYmlTemplet:getYmlTemplet,
-    getPackageConf:getPackageConf
-
-}
