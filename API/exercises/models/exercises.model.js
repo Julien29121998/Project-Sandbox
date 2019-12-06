@@ -5,6 +5,7 @@ const exerciseSchema = new Schema({
     name: String,
     description: String,
     exampleCode: String,
+    exampleCodeLang: String,
     testData: [[Schema.Types.Mixed]]
 });
 

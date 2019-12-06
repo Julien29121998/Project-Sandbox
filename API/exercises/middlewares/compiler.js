@@ -1,69 +1,60 @@
 const fs = require('fs');
-const path = require('path');
-const {deploy,invoke,call} = require('../../utils/fn');
+const {deploy} = require('../../utils/fn');
 const createDir=require('./mkdir');
-const {box,isFunction}=require('./box');
+const {box}=require('./box');
 const {getNodeFunctionCodeTemplet,getPythonFunctionCodeTemplet,
   ifNodeImprtedModule,getNodeImportedModule,
   ifPythonImprtedModule,getPythonImportedModule}=require('./getCodeTemplet');
 const {getYmlTemplet,getPackageConf}=require('./getConfigTemplet');
 
 //there should be a compile function that take some code, and a language, and compile it with some test data and compile the example code with the same test data and give back some feedback and a score which is the amount of succeded tests
-exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name) => {
+exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,trueCodeLang,name) => {
   const lang=chosenLanguage;
   var funcName=name+"_solution";
   var trueFuncName=funcName+"c";
-  var suffix="";
-  //here we need to decide the suffix of src file depending on the language
-  if(lang=="node") suffix="js";
-  if(lang=="python")  suffix="py"
+  var suffix="", suffixTrueCode="";
+  suffix=await getSuffix(lang);
+  suffixTrueCode=await getSuffix(trueCodeLang); 
   var modulesCode,modulesTrueCode;
   
   code=await decodeCode(code);
   trueCode=await decodeCode(trueCode);
-  if(lang=="node")
+  if(lang=="node" && await ifNodeImprtedModule(code)==true)
   {    
     //check whether user's code imported modules
-    if(await ifNodeImprtedModule(code)==true)
-    {
-      var res = await getNodeImportedModule(code);
-      code=res.code;
-      modulesCode=res.modules;
-    }
-    //check whether truecode imported modules
-    if(await ifNodeImprtedModule(trueCode)==true)
-    {
-      var res = await getNodeImportedModule(trueCode);
-      trueCode=res.code;
-      modulesTrueCode=res.modules;
-    }
+    var res = await getNodeImportedModule(code);
+    code=res.code;
+    modulesCode=res.modules;
   }
-  if(lang=="python")
+  if(trueCodeLang=="node" && await ifNodeImprtedModule(trueCode)==true)
+  {
+    //check whether truecode imported modules
+    var res = await getNodeImportedModule(trueCode);
+    trueCode=res.code;
+    modulesTrueCode=res.modules;
+  }
+  if(lang=="python"&&await ifPythonImprtedModule(code)==true)
   {
     //check whether user's code imported modules
-    if(await ifPythonImprtedModule(code)==true)
-    {
-      var res = await getPythonImportedModule(code);
-      code=res.code;
-      modulesCode=res.modules;
-    }
-    //check whether truecode imported modules
-    if(await ifPythonImprtedModule(trueCode)==true)
-    {
-      var res = await getPythonImportedModule(trueCode);
-      trueCode=res.code;
-      modulesTrueCode=res.modules;
-    }
+    var res = await getPythonImportedModule(code);
+    code=res.code;
+    modulesCode=res.modules;
   }
-  
+  if(trueCodeLang=="python"&&await ifPythonImprtedModule(trueCode)==true)
+  {
+    //check whether truecode imported modules
+    var res = await getPythonImportedModule(trueCode);
+    trueCode=res.code;
+    modulesTrueCode=res.modules;
+  }
   code= await box(testData,code,lang,funcName);
-  trueCode=await box(testData,trueCode,lang,trueFuncName);
+  trueCode=await box(testData,trueCode,trueCodeLang,trueFuncName);
   funcName="boxed"+funcName;
   trueFuncName="boxed"+trueFuncName;
   await createFunction(exerciseId,lang,funcName,code,suffix,modulesCode);
-  await createFunction(exerciseId+"c",lang,trueFuncName,trueCode,suffix,modulesTrueCode);
+  await createFunction(exerciseId+"c",trueCodeLang,trueFuncName,trueCode,suffixTrueCode,modulesTrueCode);
   var func_res_promise= deployFunction(exerciseId,lang,funcName);
-  var corr_res_promise= deployFunction(exerciseId+"c",lang,trueFuncName)
+  var corr_res_promise= deployFunction(exerciseId+"c",trueCodeLang,trueFuncName)
   var function_res = await func_res_promise;
   var correction_res = await corr_res_promise;
   var score = 0;
@@ -76,6 +67,22 @@ exports.compile =  async (exerciseId,code,chosenLanguage,testData,trueCode,name)
   return({score: score, time: function_res.duration, result: function_res.res}); 
   //return function_res;
 };
+async function getSuffix(lang)
+{
+  switch(lang){
+    case "node":
+      suffix="js";
+      break;
+    case "python":
+      suffix="py";
+      break;
+    default:
+      var errmsg="Sorry, language unsupported";
+      console.log(errmsg)
+      return {err: errmsg}
+  }
+  return suffix;
+}
 
 //create a new node function
 async function createFunction(exerciseId,lang,funcName,code,suffix,modules)

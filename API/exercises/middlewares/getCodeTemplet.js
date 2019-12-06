@@ -44,6 +44,7 @@ module.exports = (context, callback) => {
 
 async function ifNodeImprtedModule(unboxedCode)
 {
+  var id=unboxedCode.indexOf("require");
   return unboxedCode.indexOf("require")!=-1;
 }
 

@@ -53,8 +53,9 @@ exports.compile =  (req, res) => {
         .then(async(exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
+            let trueCodeLang=exerciseFound.exampleCodeLang;
             let name=exerciseFound.name;
-            result= await Compiler.compile(req.params.exerciseId,code,chosenLanguage,testData,trueCode,name);
+            result= await Compiler.compile(req.params.exerciseId,code,chosenLanguage,testData,trueCode,trueCodeLang,name);
             res.status(200).send(result);
         });
 
@@ -68,13 +69,14 @@ exports.submit = (req, res) => {
         .then(async (exerciseFound)=>{
             let testData=exerciseFound.testData;
             let trueCode=exerciseFound.exampleCode;
+            let trueCodeLang=exerciseFound.exampleCodeLang;
             let name=exerciseFound.name;
-            let result=await Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,name).score;
+            let score=await Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,trueCodeLang,name).score;
             TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: score})
                 .then((resultTr) => {
                     UserModel.modifyScore(userId,score)
                     .then(()=>{
-                    res.status(200).send({score: result.score,time:result.time, idTraining: resultTr._id});});
+                    res.status(200).send({score: score, idTraining: resultTr._id});});
                 });
         });   
 };

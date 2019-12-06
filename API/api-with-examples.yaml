@@ -369,8 +369,6 @@ paths:
             properties: 
               score:
                 type: integer
-              time:
-                type: integer
               idTraining:
                 type: string
 
@@ -407,6 +405,8 @@ definitions:
       description:
         type: "string"
       exampleCode:
+        type: "string"
+      exampleCodeLang:
         type: "string"
       testData:
         type: "array"

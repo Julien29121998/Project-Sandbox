@@ -1,9 +1,0 @@
-version: 1.0
-provider:
-  name: openfaas
-  gateway: http://127.0.0.1:8080
-functions:
-  boxedpython_solutionc:
-    lang: python
-    handler: ./functions/5de818503f7cccfbc3d0e900c/python/boxedpython_solutionc/src/
-    image: python_boxedpython_solutionc:latest
