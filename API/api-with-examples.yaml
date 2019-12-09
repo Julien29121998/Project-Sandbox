@@ -9,7 +9,10 @@ tags:
 - name: "user"
   description: "Operations about user"
 - name: "exercise"
-  description: "Operations about exercise"
+  description: "Operations about exercise"  
+- name: "training"
+  description: "Operations about training"  
+
 
   
 schemes:
@@ -208,7 +211,7 @@ paths:
                 items: 
                   type: "array"
                   items: 
-                      type: "string"
+                      type: "string" 
               
       responses:
         201:
@@ -373,6 +376,87 @@ paths:
                 type: integer
               idTraining:
                 type: string
+
+  /stats/users/:userId:
+    get:
+      tags:
+        - training
+      summary: get the training records of a user
+      parameters:
+      - in: path
+        name: userId
+        required: true
+        type: string
+        minimum: 1
+        description: the id of the user.
+      responses:
+        200:
+          description: a list of all the training records of this user  
+          schema:
+            type: array
+            items: 
+              type: object
+              properties: 
+                id:
+                  description: training id
+                  type: string
+                score:
+                  type: integer
+                date:
+                  type: string
+                exerciseId:
+                  type: string
+                userId:
+                  type: string
+  /stats/exercise/:exerciseId:
+    get:
+      tags:
+        - training
+      summary: get the training records of an exercise
+      parameters:
+      - in: path
+        name: exerciseId
+        required: true
+        type: string
+        minimum: 1
+        description: the id of the exercise.
+      responses:
+        200:
+          description: a list of all the training records of this exercise  
+          schema:
+            type: array
+            items: 
+              type: object
+              properties: 
+                id:
+                  description: training id
+                  type: string
+                score:
+                  type: integer
+                date:
+                  type: string
+                exerciseId:
+                  type: string
+                userId:
+                  type: string
+              
+  /stats/trainingId:
+    delete:
+      tags:
+        - training
+      summary: delete a certain training record
+      parameters:
+      - in: path
+        name: trainingId
+        required: true
+        type: string
+        minimum: 1
+        description: the id of the training.
+      responses:
+        204:
+          description: the training record deleted successfully  
+
+
 
 
 
