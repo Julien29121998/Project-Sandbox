@@ -315,7 +315,7 @@ async function arrayFuncParam(testData, head, isLast, isFirst){
   if(isFirst)
     head=head+'['
   if(isLast)
-    head=head+`[${strTestData}]])\n\t`;
+    head=head+`[${strTestData}]])\n\t\t`;
   else
     head=head+`[${strTestData}],`;
   return head;

@@ -45,6 +45,14 @@ async function deploy (funcPath) {
   return { funcPath: funcPath, res: res, duration: new Date() - start };
 }
 
+async function remove (funcPath) {
+  let result = "";
+  await runCmd(`faas-cli remove -f ${funcPath}`, {}, (line) => {
+      result += line + '\n';
+  });
+  return result;
+}
+
 async function deployAll () {
   const funcPaths = [];
   const res = [];
@@ -76,21 +84,7 @@ async function invoke (url) {
     });
   });
 }
-async function call(funcPath)
-{
-  let res;
-  await runCmd(`faas-cli invoke -f ${funcPath}`);
-  await runCmd(`faas-cli invoke -f ${funcPath}`, {}, (line) => {
-    
-    res+=line;
-      // const words = line.split(' ');
-      // for (let i = 0; i < words.length; i++) {
-      //     res = words[i + 1].replace(/\\n/g, '')
-    
-  });
-  //const res = await invoke(url);
-  return { funcPath: funcPath, res: res, duration: new Date() - start };
-}
+
 
 function generateCreds (username, password) {
   return `
@@ -113,6 +107,7 @@ module.exports = {
   deploy: deploy,
   deployAll: deployAll,
   invoke: invoke,
-  generateCreds: generateCreds
+  generateCreds: generateCreds,
+  remove: remove
   
 }

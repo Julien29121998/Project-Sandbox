@@ -1,1 +1,0 @@
-var fs=require('fs');exports.boxedhello_python_solutionc=boxedhello_python_solutioncfunction boxedhello_python_solutionc(){function hello(a){	var r='';	 for(var i=0;i<a.length;i++)		r+=a[i]	return r;}	return(hello())}

@@ -6,6 +6,10 @@ const exerciseSchema = new Schema({
     description: String,
     exampleCode: String,
     exampleCodeLang: String,
+    //testData is a two-dimensional array, each element is a group of data which permits 
+    // to test the function for one tims. So testData makes it possible to test the function
+    //several times with several groups of data.
+    //In this case, if user's function takes array parameters, testData will be a three-dimensional array.
     testData: [[Schema.Types.Mixed]]
 });
 

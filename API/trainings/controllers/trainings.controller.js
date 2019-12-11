@@ -1,5 +1,8 @@
 const TrainingModel = require('../models/trainings.model');
-
+/**
+ * Service used to get all of the training records of a user,
+ * it returns a list of training records.
+ */
 exports.listByUser = (req, res) => {
     let limit = req.query.limit && req.query.limit <= 100 ? parseInt(req.query.limit) : 10;
     let page = 0;
@@ -14,6 +17,9 @@ exports.listByUser = (req, res) => {
             res.status(200).send(result);
         })
 };
+/**
+ * Service used to get all of the training recor
+ */
 exports.listByExercise = (req, res) => {
     let limit = req.query.limit && req.query.limit <= 100 ? parseInt(req.query.limit) : 10;
     let page = 0;

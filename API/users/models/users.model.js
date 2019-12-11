@@ -5,6 +5,8 @@ const userSchema = new Schema({
     login: String,
     email: String,
     password: String,
+    //For a normal coder, the permissionLevel is 3.
+    //For administrator,the permissionlevel is 7
     permissionLevel: Number, 
     score: Number,
 });

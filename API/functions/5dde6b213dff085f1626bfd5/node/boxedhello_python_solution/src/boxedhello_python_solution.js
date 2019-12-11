@@ -1,0 +1,1 @@
+var fs = require("fs");exports.boxedhello_python_solution=boxedhello_python_solutionfunction boxedhello_python_solution(){	console.log("准备打开文件！");	fs.writeFile('input.txt','我是通 过fs.writeFile 写入文件的内容', function (err) {	if (err) {	return console.error(err);	}	console.log("数据写入成功");}	)			}

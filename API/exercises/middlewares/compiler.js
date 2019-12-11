@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {deploy} = require('../../utils/fn');
+const {deploy,remove} = require('../../utils/fn');
 const createDir=require('./mkdir');
 const {box}=require('./box');
 const {getNodeFunctionCodeTemplate: getNodeFunctionCodeTemplet,getPythonFunctionCodeTemplate: getPythonFunctionCodeTemplet,
@@ -91,9 +91,15 @@ async function compile (exerciseId,code,lang,testData,trueCode,trueCodeLang,name
   if(function_res.res==correction_res.res){
     score =3;
   }
+  var rm_func_promise = removeFunction (exerciseId, lang, funcName);
+  var rm_corr_func_promise = removeFunction (exerciseId+"c", trueCodeLang, trueFuncName);
+  var rm_function_res = await rm_func_promise;
+  var rm_corr_func_res = await rm_corr_func_promise;
   console.log("result:"+function_res.res);
   console.log("true answer:"+correction_res.res);
   console.log("point: "+score);
+  console.log(rm_function_res);
+  console.log(rm_corr_func_res);    
   return({score: score, time: function_res.duration, result: function_res.res}); 
 };
 
@@ -275,6 +281,14 @@ async function deployFunction(exerciseId,lang,funcName){
   console.log(res.res);
   return res;
 }
+
+async function removeFunction(exerciseId,lang,funcName){
+  const yml = `./functions/${exerciseId}/${lang}/${funcName}/${funcName}.yml`;
+  var res=await remove(yml);
+  console.log(res.res);
+  return res;
+}
+
 
 
 
