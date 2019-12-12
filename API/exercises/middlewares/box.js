@@ -170,7 +170,7 @@ async function nodeFuncWithInput(testData, funcName, code){
     if(hasOutPut){
       //for every group of test data, push the execution result into the output list
       for (var i=0; i<testData.length;i++) {
-        end=end+`output.push(${isFunc.name}(`
+        end=end+`output.push(${isFunc.name.trim()}(`
         //add the parameters of input list into the function call statement
         for(var j=0;j<testData[i].length;j++){
           if(j!=testData[i].length-1)
@@ -180,7 +180,7 @@ async function nodeFuncWithInput(testData, funcName, code){
         }
       }
       //return the execution results of all testdata groups
-      end=end+`return output}\n`;
+      end=end+`return output\n`;
     }
     //if userfunc has no return statement, call the userfunc with parameters of input list 
     else 
@@ -190,9 +190,10 @@ async function nodeFuncWithInput(testData, funcName, code){
           if(j!=testData[i].length-1)
             end=end+`input[${i}][${j}],`;
           else
-            end=end+`input[${i}][${j}])\n\t}`;
+            end=end+`input[${i}][${j}])\n\t`;
         }
       }
+      end=end+`}\n`
   }
   //if user code is not a function, then just return
   else{
@@ -256,7 +257,7 @@ async function pyFuncWithInput(testData, funcName, code){
     if(hasOutPut){
       //for every group of test data, push the execution result into the output list
       for(var i=0;i<testData.length;i++){
-        end=end+`output.append(${isFunc.name}(` 
+        end=end+`output.append(${isFunc.name.trim()}(` 
         //add the parameters of input list into the function call statement
         for(var j=0;j<testData[i].length;j++){
           if(j!=testData[i].length-1)
@@ -271,7 +272,7 @@ async function pyFuncWithInput(testData, funcName, code){
     //if userfunc has no return statement, call the userfunc with parameters of input list 
     else{
       for(var i=0;i<testData.length;i++){
-        end=end+`${isFunc.name}(` 
+        end=end+`${isFunc.name.trim()}(` 
         for(var j=0;j<testData[i].length;j++){
           if(j!=testData[i].length-1)
             end=end+`input[${i}][${j}],`;
@@ -286,7 +287,8 @@ async function pyFuncWithInput(testData, funcName, code){
     end=end+`return`;
   }
   code=await indent(code);
-  result=await indent(head+code+end);
+  result = head + code + end;
+  result=await indent(result);
   return result;
 }
 
@@ -360,11 +362,13 @@ async function indent(code){
  *                  attribute name which is the function name if the user code is a function and "__" otherwise.
  */
 async function isFunction(code,lang){
-  if(code.trim().split(" ")[0]=="function"&&lang=="node"){
-    return{answer: true,name: code.split(" ")[1].split("(")[0]};
+  //if(code.trim().split(" ")[0]=="function"&&lang=="node"){
+    if(code.indexOf("function") != -1&&lang=="node"){
+    return{answer: true,name: code.trim().split("function")[1].split("(")[0]};
   }
-  if(code.trim().split(" ")[0]=="def"&&lang=="python") {
-    return{answer: true,name: code.split(" ")[1].split("(")[0]};
+  //if(code.trim().split(" ")[0]=="def"&&lang=="python") {
+    if(code.indexOf("def") != -1&&lang=="python") {
+    return{answer: true,name: code.trim().split("def")[1].split("(")[0]};
   }
   return{answer: false,name: "__"};
 }
