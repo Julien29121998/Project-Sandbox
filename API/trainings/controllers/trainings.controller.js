@@ -22,7 +22,7 @@ exports.listByUser = (req, res) => {
  */
 exports.listByExercise = (req, res) => {
     let limit = req.query.limit && req.query.limit <= 100 ? parseInt(req.query.limit) : 10;
-    let page = 0;
+    let page = 1;
     if (req.query) {
         if (req.query.page) {
             req.query.page = parseInt(req.query.page);

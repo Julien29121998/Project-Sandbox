@@ -1,1 +1,1 @@
-var os = require('os')exports.boxedhello_python_solution=boxedhello_python_solutionfunction boxedhello_python_solution(){ console.log(os.type())	}
+ var os = require('os')exports.boxedhello_python_solution=boxedhello_python_solutionfunction boxedhello_python_solution(){ console.log(os.type())	}

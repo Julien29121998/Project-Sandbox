@@ -64,6 +64,10 @@ exports.removeById = (req, res) => {
  * The result returned contains score, execution time, and result.
  */
 exports.compile =  (req, res) => {
+
+    let userId = req.jwt.userId;
+    let exerciseId = req.params.exerciseId;
+
     let chosenLanguage = req.body.lang;
     let code = req.body.code;
     ExerciseModel.findById(req.params.exerciseId)
@@ -92,12 +96,12 @@ exports.submit = (req, res) => {
             let trueCode=exerciseFound.exampleCode;
             let trueCodeLang=exerciseFound.exampleCodeLang;
             let name=exerciseFound.name;
-            let score=await Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,trueCodeLang,name).score;
-            TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: score})
+            let result=await Compiler.compile(exerciseId,code,chosenLanguage,testData,trueCode,trueCodeLang,name);
+            TrainingModel.createTraining({userId: userId,exerciseId: exerciseId,date: new Date(),score: result.score})
                 .then((resultTr) => {
-                    UserModel.modifyScore(userId,score)
+                    UserModel.modifyScore(userId,result.score)
                     .then(()=>{
-                    res.status(200).send({score: score, idTraining: resultTr._id});});
+                    res.status(200).send({score: result.score, idTraining: resultTr.id});});
                 });
         });   
 };

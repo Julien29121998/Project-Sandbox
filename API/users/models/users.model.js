@@ -8,7 +8,10 @@ const userSchema = new Schema({
     //For a normal coder, the permissionLevel is 3.
     //For administrator,the permissionlevel is 7
     permissionLevel: Number, 
-    score: Number,
+    score: {
+        type: Number,
+        default: 0
+    },
 });
 
 const User = mongoose.model('Users', userSchema);
