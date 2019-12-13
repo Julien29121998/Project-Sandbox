@@ -48,7 +48,7 @@ async function compile (exerciseId,code,lang,testData,trueCode,trueCodeLang,name
   //get them and the code without import statements if it's the case.
   var modulesCode ;
   var modulesTrueCode ;
-  if(lang=="node" && await ifNodeImprtedModule(code)==true){    
+  if(lang === "node"  && await ifNodeImprtedModule(code)==true){    
     //check whether user's code imported modules
     var res = await getNodeImportedModule(code);
     code=res.code;

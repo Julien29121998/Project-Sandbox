@@ -32,7 +32,7 @@ exports.findById = (id) => {
     return Exercise.findById(id)
         .then((result) => {
             result = result.toJSON();
-            delete result._id;
+            //delete result._id;
             delete result.__v;
             return result;
         });

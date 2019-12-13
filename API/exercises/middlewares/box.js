@@ -47,6 +47,7 @@ async function box(testData,code,lang,funcName){
  * @return {string} result The boxedfunction completed
  */
 async function ifNoInput( funcName,lang, code, isFunc){
+  result=''
   //the part in the boxfunc before user code
   head=``;
   //the part in the boxfunc after user code

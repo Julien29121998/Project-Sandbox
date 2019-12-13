@@ -18,6 +18,7 @@ module.exports={
  * @return {string} ymlConf The content of YML configuration  file
  */
 function getYmlTemplet(exerciseId,lang,funcName){
+  
   const ymlConf=`version: 1.0
 provider:
   name: openfaas
