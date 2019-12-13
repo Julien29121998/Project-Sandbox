@@ -1,8 +1,8 @@
 
 "use strict"
-const func=require('./boxedhello_python_solution.js')
+const func=require('./boxedinsertionsort_solution.js')
 module.exports = (context, callback) => {
-  var result=func.boxedhello_python_solution();
+  var result=func.boxedinsertionsort_solution();
   if(!(result==undefined))
     console.log(result);
    return result;

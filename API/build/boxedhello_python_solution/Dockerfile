@@ -1,49 +1,50 @@
 FROM openfaas/classic-watchdog:0.18.1 as watchdog
 
-FROM node:12.13.0-alpine as ship
+FROM python:2.7-alpine
+
+# Allows you to add additional packages via build-arg
+ARG ADDITIONAL_PACKAGE
 
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 RUN chmod +x /usr/bin/fwatchdog
+RUN apk --no-cache add ca-certificates ${ADDITIONAL_PACKAGE}
 
+# Add non root user
 RUN addgroup -S app && adduser app -S -G app
-
-WORKDIR /root/
-
-# Turn down the verbosity to default level.
-ENV NPM_CONFIG_LOGLEVEL warn
-
-RUN mkdir -p /home/app
-
-# Wrapper/boot-strapper
-WORKDIR /home/app
-COPY package.json ./
-
-# This ordering means the npm installation is cached for the outer function handler.
-RUN npm i --production
-
-# Copy outer function handler
-COPY index.js ./
-
-# COPY function node packages and install, adding this as a separate
-# entry allows caching of npm install runtime dependencies
-WORKDIR /home/app/function
-COPY function/*.json ./
-RUN npm i --production || :
-
-# Copy in additional function files and folders
-COPY --chown=app:app function/ .
 
 WORKDIR /home/app/
 
-# chmod for tmp is for a buildkit issue (@alexellis)
-RUN chmod +rx -R ./function \
-    && chown app:app -R /home/app \
-    && chmod 777 /tmp
+COPY index.py           .
+COPY requirements.txt   .
+
+RUN chown -R app /home/app && \
+  mkdir -p /home/app/python && chown -R app /home/app
+USER app
+ENV PATH=$PATH:/home/app/.local/bin:/home/app/python/bin/
+ENV PYTHONPATH=$PYTHONPATH:/home/app/python
+
+RUN pip install -r requirements.txt --target=/home/app/python
+
+RUN mkdir -p function
+RUN touch ./function/__init__.py
+
+WORKDIR /home/app/function/
+COPY function/requirements.txt	.
+
+RUN pip install -r requirements.txt --target=/home/app/python
+
+WORKDIR /home/app/
+
+USER root
+
+COPY function           function
+
+RUN chown -R app:app ./ && \
+  chmod -R 777 /home/app/python
 
 USER app
 
-ENV cgi_headers="true"
-ENV fprocess="node index.js"
+ENV fprocess="python index.py"
 EXPOSE 8080
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1

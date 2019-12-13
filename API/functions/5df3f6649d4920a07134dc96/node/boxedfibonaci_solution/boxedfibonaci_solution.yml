@@ -1,0 +1,9 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  boxedfibonaci_solution:
+    lang: node
+    handler: ./functions/5df3f6649d4920a07134dc96/node/boxedfibonaci_solution/src/
+    image: node_boxedfibonaci_solution:latest

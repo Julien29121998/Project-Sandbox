@@ -1,1 +1,1 @@
-exports.boxedhello_python_solution=boxedhello_python_solutionfunction boxedhello_python_solution(){console.log('hello')}
+exports.boxedhello_python_solution=boxedhello_python_solutionfunction boxedhello_python_solution(){import sysprint(sys.platform)}

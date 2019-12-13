@@ -34,7 +34,7 @@ exports.compile =  compile
  */
 async function compile (exerciseId,code,lang,testData,trueCode,trueCodeLang,name) {
   //the name of function created using user code
-  var funcName=name+"_solution";
+  var funcName=name.replace(/\s+/g,"").toLowerCase()+"_solution";
   //the name of correct function created using example code
   var trueFuncName=funcName+"c";
   //get suffix for each function according to their language

@@ -1,1 +1,0 @@
-exports.boxedhello_python_solution=boxedhello_python_solutionfunction boxedhello_python_solution(){console.log('hello')}
