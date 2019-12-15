@@ -1,2 +1,0 @@
-Project Sandbox
-Hello World !
